@@ -1,10 +1,12 @@
 import { useEffect } from "react";
 import { CharacterPosition } from "../../models/CharacterPosition";
 import { GameWindowSize } from "../../models/GameWindow";
+import { collisionY } from "./collisionY";
 
 export const useGravity = (
   tick: number,
   gameWindowSize: GameWindowSize,
+  mapArray: [][],
   characterPosition: CharacterPosition,
   setCharacterPosition: (characterPosition: CharacterPosition) => void,
   isJumping: boolean,
@@ -21,22 +23,22 @@ export const useGravity = (
 
       //console.log(characterPosition.y);
 
-      if (
-        isFalling &&
-        characterPosition.y > 0 // gameWindowSize.height - characterSize.height
-      ) {
-        //setIsFalling(true);
-        /* let {
+      //isFalling && collision();
+
+      if (isFalling) {
+        if (!collisionY(mapArray, characterPosition)) {
+          //setIsFalling(true);
+          /* let {
           values: { x, y },
         } = characterPosition; */
 
-        //console.log("TRASUTO");
+          //console.log("TRASUTO");
 
-        characterPosition.y -= 10;
+          characterPosition.y -= 20;
 
-        setCharacterPosition({ ...characterPosition });
+          setCharacterPosition({ ...characterPosition });
 
-        /* setCharacterPosition(({ x, y }) => {
+          /* setCharacterPosition(({ x, y }) => {
             //const cpy = y < gameWindowSize.height - characterSize.height - 2 ? y++ : y;
 
             console.log(
@@ -61,7 +63,7 @@ export const useGravity = (
             };
           }); */
 
-        /* Animated.timing(characterPosition.animatedValues.y, {
+          /* Animated.timing(characterPosition.animatedValues.y, {
           toValue: y,
           duration: 100,
           useNativeDriver: true,
@@ -69,8 +71,9 @@ export const useGravity = (
           setIsJumping(false);
           characterPosition.values.y = cpy;
         }); */
-      } else {
-        setIsFalling(false);
+        } else {
+          setIsFalling(false);
+        }
       }
     }, tick);
   };
