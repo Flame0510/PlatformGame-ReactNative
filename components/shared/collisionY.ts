@@ -1,37 +1,16 @@
 import { CharacterPosition } from "../../models/CharacterPosition";
+import { Level } from "../../models/Level";
 
 export const collisionY = (
-  mapArray: [][],
+  level: Level,
   characterPosition: CharacterPosition
 ) => {
-  console.log("\n\nNEW \n\n\n");
+  console.log("\n\nCOLL Y NEW \n\n\n");
 
-  let block = false;
+  const x = Math.ceil(characterPosition.x / 20);
+  const y = Math.ceil(characterPosition.y / 20);
 
-  characterPosition.y > 0
-    ? mapArray.map((row, rowKey) => {
-        console.log("ROW KEY", rowKey * 20);
+  const levelElement = y > 0 && level[y - 1][x];
 
-        row.map((element, key) => {
-          const r =
-            element === 1 &&
-            characterPosition.y - 20 === rowKey * 20 &&
-            characterPosition.x === key * 20;
-          /* characterPosition.y > rowKey * 20 &&
-          characterPosition.x > key * 20 &&
-          characterPosition.x < row[key + 1] * 20; */
-
-          console.log(
-            characterPosition.y - 20 + " = " + rowKey * 20 + "----r:" + r
-          );
-
-          //console.log(element + ": " + key * 20 + " - " + row[key + 1] * 20);
-          r && (block = true);
-        });
-      })
-    : (block = true);
-
-  console.log("BLOCK ", block);
-
-  return block;
+  return y <= 0 || levelElement === 1 || levelElement === "b";
 };

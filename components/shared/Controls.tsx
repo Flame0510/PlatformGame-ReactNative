@@ -1,73 +1,129 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import {
   TouchableOpacity,
-  TouchableOpacityBase,
   View,
   StyleSheet,
   Text,
   Animated,
 } from "react-native";
+import { gameRowsColumns } from "../../environment/gameContainer";
+import { CharacterPosition } from "../../models/CharacterPosition";
+import { Level } from "../../models/Level";
 import { collisionY } from "./collisionY";
 
 const Controls = ({
-  mapArray,
+  level,
+
+  characterSize,
   characterPosition,
   setCharacterPosition,
-  jump,
+
+  setDirection,
+
+  canClimb,
+
+  canDescend,
+
+  isClimbing,
+  setIsClimbing,
+  setClimbLeg,
+
+  isMoving,
+  setIsMoving,
+
+  isJumping,
+  setIsJumping,
+
   isFalling,
   setIsFalling,
 }: {
-  mapArray: [][];
-  characterPosition: any;
+  level: Level;
+
+  characterSize: { width: number; height: number };
+  characterPosition: CharacterPosition;
   setCharacterPosition: (characterPosition: any) => void;
-  jump: () => void;
+
+  setDirection: (direction: "right" | "left") => void;
+
+  canClimb: boolean;
+
+  canDescend: boolean;
+
+  isClimbing: boolean;
+  setIsClimbing: (isClimb: boolean) => void;
+  setClimbLeg: (climbLeg: "right" | "left") => void;
+
+  isMoving: boolean;
+  setIsMoving: (isMoving: boolean) => void;
+
+  isJumping: boolean;
+  setIsJumping: (isJumping: boolean) => void;
+
   isFalling: boolean;
   setIsFalling: (isFalling: boolean) => void;
 }) => {
-  const [isMoving, setIsMoving] = useState(false);
+  const { rows, columns } = gameRowsColumns;
 
   const moveVelocity = 20;
 
   let moveInterval: any;
 
+  //COLLISION X
   const collisionX = (direction: string) => {
-    let block = false;
+    const x = Math.ceil(characterPosition.x / 20);
+    const y = Math.ceil(characterPosition.y / 20);
 
-    const collision = mapArray.map((row, rowKey) => {
-      console.log("ROW KEY", /* (mapArray.length - rowKey) */ rowKey * 20);
+    console.log("COLL Y: ", y);
 
-      console.log(rowKey * 20 <= 60);
+    console.log("COLL POS: ", level[y][x + 1] === 1);
 
-      rowKey * 20 + characterPosition.y < 20 &&
-        row.map((element, key) => {
-          const futurePosition =
-            direction === "left"
-              ? characterPosition.x - moveVelocity
-              : direction === "right" && characterPosition.x + moveVelocity;
-          const r = element === 1 && futurePosition === key * 20;
+    console.log("X POS: ", x + 1);
 
-          /* console.log(
-                element +
-                  ": " +
-                  key * 20 +
-                  "---r: " +
-                  r +
-                  "---------" +
-                  (characterPosition.x - moveVelocity) +
-                  " < " +
-                  key * 20
-              ); */
+    return direction === "right"
+      ? x + 1 > columns - 1 || level[y][x + 1] === 1
+      : x - 1 < 0 || level[y][x + 1] === 1;
+  };
 
-          r && (block = true);
-          return r;
-        });
+  //JUMP
+  const jump = () => {
+    console.log("JUMP: ", isJumping);
+    console.log("FALL: ", isFalling);
 
-      //console.log("RrOw: ", rRow);
-    });
+    const y = Math.ceil(characterPosition.y / 20);
 
-    console.log("BLOCK: ", block);
+    const jumpHeight = 80;
 
-    return block;
+    console.log(y + 2 + "<" + (columns - 1));
+
+    if (y + 2 < columns - jumpHeight / 20 && !isJumping && !isFalling) {
+      setIsClimbing(false);
+      setIsJumping(true);
+
+      const targetY = characterPosition.y + jumpHeight;
+
+      const jumpInterval = setInterval(() => {
+        if (characterPosition.y < targetY) {
+          characterPosition.y += 10;
+          setCharacterPosition({ ...characterPosition });
+        } else {
+          clearInterval(jumpInterval);
+          setIsJumping(false);
+          setIsFalling(true);
+        }
+      }, 1);
+
+      /* setCharacterPosition(({ x, y }) => {
+        return { x, y: y + 100 };
+      }); */
+
+      //setCharacterPosition(({ x, y }) => ({ x, y: y - 100 }));
+
+      /* Animated.timing(characterPosition.animatedValues.y, {
+        toValue: characterPosition.values.y - 50,
+        duration: 100,
+        useNativeDriver: true,
+      }).start(); */
+    }
   };
 
   const move = (direction: string) => {
@@ -95,25 +151,14 @@ s
         break;
     } */
 
-    if (!isFalling && !isMoving) {
+    if (!isMoving && !isFalling) {
       switch (direction) {
         case "left":
-          /* clearInterval(moveInterval);
+          setIsClimbing(false);
 
-          setIsMoving(true);
+          setDirection("left");
 
-          moveInterval = setInterval(() => {
-            characterPosition.x -= 10;
-            setCharacterPosition({ ...characterPosition });
-
-            //console.log(isMoving);
-          }, 100); */
-
-          //console.log(collision);
           if (!collisionX("left")) {
-            /* characterPosition.x -= moveVelocity;
-            setCharacterPosition({ ...characterPosition }); */
-
             const target = characterPosition.x - moveVelocity;
 
             moveInterval = setInterval(() => {
@@ -124,17 +169,18 @@ s
               } else {
                 clearInterval(moveInterval);
                 setIsMoving(false);
-                !collisionY(mapArray, characterPosition) && setIsFalling(true);
+                !collisionY(level, characterPosition) && setIsFalling(true);
               }
             }, 1);
           }
           break;
 
         case "right":
-          if (!collisionX("right")) {
-            /* characterPosition.x += moveVelocity;
-            setCharacterPosition({ ...characterPosition }); */
+          setDirection("right");
 
+          setIsClimbing(false);
+
+          if (!collisionX("right")) {
             const target = characterPosition.x + moveVelocity;
 
             moveInterval = setInterval(() => {
@@ -145,22 +191,62 @@ s
               } else {
                 clearInterval(moveInterval);
                 setIsMoving(false);
-                !collisionY(mapArray, characterPosition) && setIsFalling(true);
+                !collisionY(level, characterPosition) && setIsFalling(true);
               }
             }, 1);
           }
           break;
 
         case "up":
-          characterPosition.y += moveVelocity;
-          setCharacterPosition({ ...characterPosition });
+          let y = characterPosition.y / 20;
+
+          isClimbing &&
+            setClimbLeg((climbLeg: "right" | "left") =>
+              climbLeg === "right" ? "left" : "right"
+            );
+
+          if (canClimb) {
+            characterPosition.y += moveVelocity;
+            setCharacterPosition({ ...characterPosition });
+            setIsClimbing(true);
+            setIsMoving(true);
+          } else if (isClimbing) {
+            characterPosition.y += moveVelocity;
+            setCharacterPosition({ ...characterPosition });
+            setIsClimbing(false);
+            setIsMoving(false);
+          }
           break;
 
         case "down":
           if (characterPosition.y > 0) {
-            characterPosition.y -= moveVelocity;
+            /* const target = characterPosition.y - moveVelocity;
+
+            moveInterval = setInterval(() => {
+              if (characterPosition.y - 10 <= target) {
+                characterPosition.y -= 10;
+                setCharacterPosition({ ...characterPosition });
+                setIsMoving(true);
+              } else {
+                clearInterval(moveInterval);
+                setIsMoving(false);
+              }
+            }, 1); */
+
+            characterPosition.y -= 20;
             setCharacterPosition({ ...characterPosition });
-            setIsFalling(true);
+
+            isClimbing
+              ? setClimbLeg((climbLeg: "right" | "left") =>
+                  climbLeg === "right" ? "left" : "right"
+                )
+              : canDescend
+              ? setIsClimbing(true)
+              : setIsFalling(true);
+
+            characterPosition.y <= 0 && setIsClimbing(false);
+
+            // : setIsFalling(true);
           }
           break;
       }
@@ -177,8 +263,8 @@ s
     <View style={styles.container}>
       <View style={styles.leftContainer}>
         <TouchableOpacity
-          style={[styles.controlBtn, { width: 50, height: 100 }]}
-          onPressIn={() => move("up")}
+          style={[styles.controlBtn, { width: 50, height: 50 }]}
+          onPressIn={() => (canClimb ? move("up") : jump())}
           onPressOut={() => setIsMoving(false)}
         />
 
@@ -199,7 +285,7 @@ s
         </View>
 
         <TouchableOpacity
-          style={[styles.controlBtn, { width: 50, height: 100 }]}
+          style={[styles.controlBtn, { width: 50, height: 50 }]}
           onPressIn={() => move("down")}
           onPressOut={() => clearInterval(moveInterval)}
         />
@@ -209,7 +295,7 @@ s
         style={[styles.controlBtn, { height: 200 }]}
         onPress={jump}
       >
-        <Text>JUMP</Text>
+        <Text style={styles.colorBtnText}>JUMP</Text>
       </TouchableOpacity>
     </View>
   );
@@ -221,12 +307,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
 
-    backgroundColor: "#1c1c1c",
+    //backgroundColor: "#1c1c1c",
 
     paddingHorizontal: 20,
     paddingVertical: 40,
 
-    //position: "absolute",
+    position: "absolute",
+    bottom: 0,
   },
 
   leftContainer: {
@@ -237,8 +324,12 @@ const styles = StyleSheet.create({
   controlBtn: {
     justifyContent: "center",
     margin: 10,
-    backgroundColor: "lightblue",
+    backgroundColor: "#333",
     padding: 16,
+  },
+
+  colorBtnText: {
+    color: "#fff",
   },
 });
 
