@@ -1,4 +1,4 @@
-/* import { createNavigationContainerRef } from "@react-navigation/native";
+import { createNavigationContainerRef } from "@react-navigation/native";
 
 export const navigationRef = createNavigationContainerRef();
 
@@ -15,4 +15,3 @@ export const goBack = () => {
 export const reset = (name: any) => {
   navigationRef.isReady() && navigationRef.reset(name);
 };
- */

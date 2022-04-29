@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { TouchableOpacity, View, StyleSheet, Text } from "react-native";
 import { gameRowsColumns } from "../../environment/gameContainer";
 import { CharacterPosition } from "../../models/CharacterPosition";
@@ -175,8 +175,6 @@ const Controls = ({
           break;
 
         case "up":
-          let y = characterPosition.y / 20;
-
           isClimbing &&
             setClimbLeg((climbLeg: "right" | "left") =>
               climbLeg === "right" ? "left" : "right"
@@ -244,8 +242,7 @@ const Controls = ({
                 transform: [{ rotate: "-30deg" }],
               },
             ]}
-            onPressIn={() => (canClimb ? move("up") : jump("left"))}
-            onPressOut={() => setIsMoving(false)}
+            onPressIn={() => jump("left")}
           />
 
           <TouchableOpacity
@@ -274,8 +271,7 @@ const Controls = ({
                 transform: [{ rotate: "30deg" }],
               },
             ]}
-            onPressIn={() => (canClimb ? move("up") : jump("right"))}
-            onPressOut={() => setIsMoving(false)}
+            onPressIn={() => jump("right")}
           />
         </View>
 
@@ -319,6 +315,7 @@ const Controls = ({
             },
           ]}
           onPressIn={() => move("down")}
+          onPressOut={() => setIsMoving(false)}
         />
       </View>
       <View>

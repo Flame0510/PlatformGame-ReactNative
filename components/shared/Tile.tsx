@@ -14,7 +14,7 @@ const Tile = ({
 }: any) => {
   const { rows, columns } = gameRowsColumns;
 
-  const tile = useMemo(() => {
+  return useMemo(() => {
     return (
       <View
         style={{
@@ -87,9 +87,7 @@ const Tile = ({
         )}
       </View>
     );
-  }, [level[rowKey][columnKey]]);
-
-  return tile;
+  }, [level[rowKey][columnKey]]);  
 };
 
 export default Tile;

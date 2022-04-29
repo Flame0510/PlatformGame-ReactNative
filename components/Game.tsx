@@ -1,5 +1,12 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
-import { View, Text, StyleSheet, SafeAreaView, Dimensions } from "react-native";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  SafeAreaView,
+  Dimensions,
+  Animated,
+} from "react-native";
 import { gameRowsColumns } from "../environment/gameContainer";
 import CoinCounter from "./shared/CoinCounter";
 import Controls from "./shared/Controls";
@@ -53,6 +60,8 @@ const Game = () => {
     x: 80,
     y: 0,
   });
+
+  const fadeValue = useRef(new Animated.Value(0)).current;
 
   //LEVEL
   const b = "b";
@@ -142,8 +151,6 @@ const Game = () => {
     isFalling,
   });
 
-  //useAnimation({ level, coinPosition, setCoinPosition });
-
   //USE GRAVITY
   gameWindowSize &&
     useGravity({
@@ -157,9 +164,24 @@ const Game = () => {
       setIsFalling,
     });
 
-  return gameWindowSize ? (
+  useEffect(() => {
+    Animated.timing(fadeValue, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+  }, []);
+
+  return level ? (
     <SafeAreaView style={styles.safeAreaContainer}>
-      <View style={styles.container}>
+      <Animated.View
+        style={[
+          styles.container,
+          {
+            opacity: fadeValue,
+          },
+        ]}
+      >
         <CoinCounter coinCounter={coinCounter} />
 
         <GameContainer
@@ -195,8 +217,9 @@ const Game = () => {
           <Text>
             GAME WIDTH: {columns * 20} - GAME HEIGHT: {rows * 20}
           </Text>
-          <Text>Y: {(rows * 20) / 2 - characterPosition.y}</Text>
           <Text>LEVEL: {levelCounter}</Text>
+          <Text>DIRECTION: {direction}</Text>
+          <Text>isMoving: {isMoving ? "SI" : "NO"}</Text>
           <Text>canDescend: {canDescend ? "SI" : "NO"}</Text>
           <Text>canClimb: {canClimb ? "SI" : "NO"}</Text>
           <Text>isFalling: {isFalling ? "SI" : "NO"}</Text>
@@ -225,7 +248,7 @@ const Game = () => {
           isFalling={isFalling}
           setIsFalling={setIsFalling}
         />
-      </View>
+      </Animated.View>
     </SafeAreaView>
   ) : (
     <Text>LOADING</Text>

@@ -3,22 +3,27 @@ import { StatusBar } from "expo-status-bar";
 import { NavigationContainer } from "@react-navigation/native";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import Game from "./components/Game";
-import { View } from "react-native";
+import { navigationRef } from "./components/shared/RootNavigation";
+import Menu from "./components/Menu";
 
 const Stack = createNativeStackNavigator();
 
 const App = () => {
-  return <Game />;
+  return (
+    <NavigationContainer ref={navigationRef}>
+      <Stack.Navigator
+        initialRouteName="Menu"
+        screenOptions={{ headerShown: false }}
+      >
+        <Stack.Screen name="Menu" component={Menu} />
+        <Stack.Screen name="Game" component={Game} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
 };
 
 export default App;
 
-/* <NavigationContainer>
-    <StatusBar style="auto" />
-    <Stack.Navigator
-      initialRouteName="Home"
-      defaultScreenOptions={{ headerShown: false }}
-    >
-      <Stack.Screen name="Home" component={Home} />
-    </Stack.Navigator>
-  </NavigationContainer> */
+{
+  /* <StatusBar style="auto" /> */
+}
