@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "40%",
 
-    backgroundColor: "#F4CDD4",
+    //backgroundColor: "gray",
 
     paddingHorizontal: 20,
     paddingVertical: 40,
@@ -357,7 +357,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     bottom: 0,
 
-    opacity: 1,
+    opacity: 0.5,
   },
 
   leftContainer: {

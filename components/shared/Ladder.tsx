@@ -1,7 +1,7 @@
 import React from "react";
 import { View, StyleSheet } from "react-native";
 
-const Ladder = ({ backgroundColor }: { backgroundColor: string }) => (
+const Ladder = () => (
   <View style={styles.container}>
     <View style={[styles.verticalPeg, { left: 0 }]} />
     <View style={styles.peg} />

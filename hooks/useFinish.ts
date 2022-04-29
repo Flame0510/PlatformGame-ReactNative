@@ -43,5 +43,5 @@ export const useFinish = ({
       createLevel();
       setLevelCounter((levelCounter: number) => levelCounter + 1);
     }
-  }, [isMoving, isJumping, isFalling]);
+  }, [characterPosition]);
 };

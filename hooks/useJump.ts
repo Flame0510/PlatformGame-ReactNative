@@ -57,15 +57,13 @@ export const useJump = ({
         if (characterPosition.y < targetY) {
           characterPosition.y += 10;
 
+          direction === "right"
+            ? ((characterPosition.x += (jumpHeight / 4)/8), setDirection("right"))
+            : direction === "left" &&
+              ((characterPosition.x -= (jumpHeight / 4)/8), setDirection("left"));
+
           setCharacterPosition({ ...characterPosition });
         } else {
-          direction === "right"
-            ? ((characterPosition.x += 20), setDirection("right"))
-            : direction === "left" &&
-              ((characterPosition.x -= 20), setDirection("left"));
-
-          setCharacterPosition({ ...characterPosition });
-
           clearInterval(jumpInterval);
           setIsJumping(false);
           setIsFalling(true);

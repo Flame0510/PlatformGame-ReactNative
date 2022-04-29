@@ -21,21 +21,21 @@ const GameContainer = ({
   const windowX = useRef(new Animated.Value(0)).current;
   const windowY = useRef(new Animated.Value(0)).current;
 
+  const width = Dimensions.get("screen").width;
+  const height = Dimensions.get("screen").height;
+
+  const scaleX = width >= 768 ? width / (width / 2) : 1;
+  const scaleY = width >= 768 ? height / (height / 2) : 1;
+
+  console.log("WIDTH ", width);
+  console.log("HEIGHT ", height);
+  console.log("SCALEY: ", scaleY);
+
+  console.log("gameHeigth: ", rows * 20 * scaleX);
+
   useEffect(() => {
-    const width = Dimensions.get("screen").width;
-    const height = Dimensions.get("screen").height;
-
-    const y =
-      characterPosition.y / 20 < rows / 2
-        ? -(height - (rows * 20) / 2) / 10
-        : 0;
-
-    const x =
-      characterPosition.x / 20 < columns / 2
-        ? 0
-        : -((columns * 20) / 2 - (width - (columns * 20) / 2));
-
-    console.log("Width: ", width - (columns * 20) / 2);
+    const y = -((rows * 20) / 2 - characterPosition.y);
+    const x = (columns * 20) / 2 - characterPosition.x;
 
     Animated.timing(windowY, {
       toValue: y,
@@ -59,6 +59,9 @@ const GameContainer = ({
           height: rows * 20,
 
           transform: [
+            {
+              scale: scaleX,
+            },
             {
               translateY: windowY,
             },

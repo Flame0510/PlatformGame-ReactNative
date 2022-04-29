@@ -1,5 +1,5 @@
 import React, { memo, useEffect, useMemo, useRef, useState } from "react";
-import { View, Text, StyleSheet, SafeAreaView } from "react-native";
+import { View, Text, StyleSheet, SafeAreaView, Dimensions } from "react-native";
 import { gameRowsColumns } from "../environment/gameContainer";
 import CoinCounter from "./shared/CoinCounter";
 import Controls from "./shared/Controls";
@@ -35,6 +35,9 @@ const Game = () => {
   const { rows, columns } = gameRowsColumns;
 
   //const [gameWindowSize, setGameWindowSize] = useState<GameWindowSize>();
+
+  const width = Dimensions.get("screen").width;
+  const height = Dimensions.get("screen").height;
 
   let gameWindowSize = {
     width: 400,
@@ -182,9 +185,17 @@ const Game = () => {
 
             zIndex: 10,
 
-            opacity: 0,
+            opacity: 1,
           }}
         >
+          <Text>Scale: {width >= 768 ? width / (width / 2) : 1}</Text>
+          <Text>
+            WIDTH: {width} - HEIGHT: {height}
+          </Text>
+          <Text>
+            GAME WIDTH: {columns * 20} - GAME HEIGHT: {rows * 20}
+          </Text>
+          <Text>Y: {(rows * 20) / 2 - characterPosition.y}</Text>
           <Text>LEVEL: {levelCounter}</Text>
           <Text>canDescend: {canDescend ? "SI" : "NO"}</Text>
           <Text>canClimb: {canClimb ? "SI" : "NO"}</Text>
@@ -230,6 +241,9 @@ const styles = StyleSheet.create({
   },
 
   container: {
+    justifyContent: "center",
+    alignItems: "center",
+
     width: "100%",
     height: "100%",
   },
