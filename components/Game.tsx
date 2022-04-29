@@ -1,16 +1,20 @@
-import React, { useEffect, useState } from "react";
-import { View, Text, StyleSheet, SafeAreaView, Animated } from "react-native";
+import React, { memo, useEffect, useMemo, useRef, useState } from "react";
+import { View, Text, StyleSheet, SafeAreaView } from "react-native";
 import { gameRowsColumns } from "../environment/gameContainer";
+import CoinCounter from "./shared/CoinCounter";
 import Controls from "./shared/Controls";
-import { useBridge } from "./shared/useBridge";
-import { useClimb } from "./shared/useClimb";
-import { useCoin } from "./shared/useCoin";
-import { useFinish } from "./shared/useFinish";
-import { useGravity } from "./shared/useGravity";
-import { useLevel } from "./shared/useLevel";
+import { useBridge } from "../hooks/useBridge";
+import { useClimb } from "../hooks/useClimb";
+import { useCoin } from "../hooks/useCoin";
+import { useFinish } from "../hooks/useFinish";
+import { useGravity } from "../hooks/useGravity";
+import { useLevel } from "../hooks/useLevel";
+import GameContainer from "./shared/GameCointainer";
 
 const Game = () => {
   const [direction, setDirection] = useState<"right" | "left">("right");
+
+  const [isKicking, setIsKicking] = useState(false);
 
   const [climbLeg, setClimbLeg] = useState<"right" | "left">("right");
   const [canClimb, setCanClimb] = useState(false);
@@ -43,14 +47,14 @@ const Game = () => {
     x: number;
     y: number;
   }>({
-    x: 120,
+    x: 80,
     y: 0,
   });
 
   //LEVEL
   const b = "b";
   const c = "c";
-  const s = "s";
+  const l = "l";
   const e = "e";
   const f = "f";
 
@@ -70,12 +74,12 @@ const Game = () => {
       [1, f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [1, f, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
       [1, 1, 1, 1, 1, 1, 1, 1, b, b, b, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-      [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, s, 0, 0, 0, 0, 0, 0, 0, 0],
-      [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, s, 0, 1, 1, 0, c, c, 0, 0],
-      [1, 1, 1, 0, 0, 0, 0, 0, 1, 0, 0, s, 0, 0, 0, 0, 0, 0, 0, 0],
-      [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, s, 0, 0, 1, 1, 1, 1, 1, 0],
-      [1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, s, 0, 0, 0, 0, 0, 0, 0, 0],
-      [1, 1, 1, 0, 0, 0, 0, 0, 0, e, 0, s, 0, 0, 0, 0, 0, 0, 0, 0],
+      [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, l, 0, 0, 0, 0, 0, 0, 0, 0],
+      [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, l, 0, 1, 1, 0, c, c, 0, 0],
+      [1, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, l, 0, 0, 0, 0, 0, 0, 0, 0],
+      [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, l, 0, 0, 1, 1, 1, 1, 1, 0],
+      [1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, l, 0, 0, 0, 0, 0, 0, 0, 0],
+      [1, 1, 0, 0, 0, 0, 0, 0, 0, e, 0, l, 0, 0, 0, 0, 0, 0, 0, 0],
     ].reverse()
   );
 
@@ -139,261 +143,46 @@ const Game = () => {
 
   //USE GRAVITY
   gameWindowSize &&
-    useGravity(
-      1,
+    useGravity({
+      tick: 1,
       gameWindowSize,
       level,
       characterPosition,
       setCharacterPosition,
       isJumping,
       isFalling,
-      setIsFalling
-    );
+      setIsFalling,
+    });
 
   return gameWindowSize ? (
     <SafeAreaView style={styles.safeAreaContainer}>
-      <View
-        style={[
-          styles.gameContainer,
-          {
-            width: columns * 20,
-            //height: gameWindowSize?.height
-          },
-          characterPosition.x / 20 < columns / 2 && {
-            left: 0,
-          },
-          characterPosition.x / 20 > columns / 2 && { right: 0 },
-        ]}
-        onLayout={({
-          nativeEvent: {
-            layout: { width, height },
-          },
-        }) => (console.log(height), (gameWindowSize = { width, height }))}
-      >
-        {/* COIN COUNTER */}
-        <View
-          style={{
-            alignItems: "center",
-            flexDirection: "row",
+      <View style={styles.container}>
+        <CoinCounter coinCounter={coinCounter} />
 
-            position: "absolute",
-            bottom: -36,
-            left: 0,
-
-            padding: 8,
-
-            zIndex: 1,
-          }}
-        >
-          <Text>Coins: </Text>
-          <View
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-
-              width: 20,
-              height: 20,
-              backgroundColor: "gold",
-
-              borderRadius: 12,
-
-              zIndex: 1,
-            }}
-          >
-            <Text style={{ fontSize: 10 }}>{coinCounter}</Text>
-          </View>
-        </View>
-
-        {/* CHARACTER */}
-        <View
-          style={[
-            styles.character,
-            {
-              width: characterSize.width,
-              height: characterSize.height,
-
-              left: characterPosition.x,
-              bottom: characterPosition.y,
-            },
-          ]}
-        >
-          <View
-            style={{
-              width: characterSize.width,
-              height: characterSize.height / 3,
-
-              backgroundColor: "#FFDBAC",
-            }}
-          >
-            <View
-              style={{
-                width: "100%",
-                height: 5,
-
-                backgroundColor: "#000",
-              }}
-            />
-
-            {!isClimbing && (
-              <Text style={{ fontSize: 12, textAlign: direction }}>
-                {isJumping || isFalling
-                  ? "'o'"
-                  : direction === "right"
-                  ? "' .'"
-                  : "'. '"}
-              </Text>
-            )}
-          </View>
-          <View
-            style={{
-              justifyContent: "center",
-              alignItems: "center",
-              width: characterSize.width,
-              height: characterSize.height / 3,
-
-              backgroundColor: "green",
-
-              zIndex: 10,
-            }}
-          >
-            {!isClimbing && (
-              <View
-                style={{
-                  width: 5,
-                  height: 12,
-
-                  right: direction === "right" ? 2 : -2,
-
-                  backgroundColor: "#FFDBAC",
-                }}
-              />
-            )}
-          </View>
-          {/* LEGS */}
-          <View style={{ flexDirection: "row" }}>
-            <View
-              style={{
-                width: characterSize.width / 2,
-                height:
-                  characterSize.height /
-                  (climbLeg === "left" && isClimbing ? 2 : isJumping ? 5 : 3),
-
-                backgroundColor: "blue",
-              }}
-            >
-              <View
-                style={{
-                  width: characterSize.width / 2,
-                  height: 6,
-
-                  backgroundColor: "#000",
-
-                  position: "absolute",
-                  bottom: 0,
-                }}
-              />
-            </View>
-
-            <View
-              style={{
-                width: characterSize.width / 2,
-                height:
-                  characterSize.height /
-                  (climbLeg === "right" && isClimbing ? 2 : isJumping ? 5 : 3),
-
-                backgroundColor: "blue",
-              }}
-            >
-              <View
-                style={{
-                  width: characterSize.width / 2,
-                  height: 6,
-
-                  backgroundColor: "#000",
-
-                  position: "absolute",
-                  bottom: 0,
-                }}
-              />
-            </View>
-          </View>
-        </View>
-
-        {/* LEVEL */}
-        {level.map((row, rowKey) =>
-          row.map((element, key) => {
-            let backgroundColor = "";
-            let text = "";
-
-            switch (element) {
-              case 1:
-                backgroundColor = "darkorange";
-                text = "_I";
-                break;
-
-              case "b":
-                backgroundColor = "#C4A484";
-                break;
-
-              case "c":
-                backgroundColor = "gold";
-                text = "c";
-                break;
-
-              case "s":
-                backgroundColor = "brown";
-                text = "|=|";
-                break;
-
-              case "e":
-                backgroundColor = "red";
-                text = "-_-";
-                break;
-
-              case "f":
-                backgroundColor = "#555";
-            }
-
-            return (
-              element !== 0 && (
-                <Animated.View
-                  style={{
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: 20,
-                    height: element !== "b" ? 20 : 10,
-                    backgroundColor,
-
-                    borderRadius: element === "c" ? 12 : 0,
-
-                    position: "absolute",
-                    bottom:
-                      rowKey * 20 +
-                      (element === "b"
-                        ? 10
-                        : element === "c"
-                        ? coinPosition
-                        : 0),
-                    left: key * 20,
-                  }}
-                  key={key}
-                >
-                  <Text style={{ textAlign: "center", fontSize: 10 }}>
-                    {/* {rowKey},{key} */}
-                    {text}
-                  </Text>
-                </Animated.View>
-              )
-            );
-          })
-        )}
+        <GameContainer
+          level={level}
+          characterSize={characterSize}
+          characterPosition={characterPosition}
+          direction={direction}
+          isMoving={isMoving}
+          isClimbing={isClimbing}
+          climbLeg={climbLeg}
+          isKicking={isKicking}
+          isJumping={isJumping}
+          isFalling={isFalling}
+        />
 
         <View
           style={{
-            alignItems: "center",
-            width: "100%",
+            justifyContent: "center",
+            backgroundColor: "#eee",
             position: "absolute",
-            bottom: -100,
+            top: 10,
+            left: 10,
+
+            zIndex: 10,
+
+            opacity: 0,
           }}
         >
           <Text>LEVEL: {levelCounter}</Text>
@@ -404,26 +193,28 @@ const Game = () => {
             X: {characterPosition.x} - Y: {characterPosition.y}
           </Text>
         </View>
-      </View>
 
-      <Controls
-        level={level}
-        characterSize={characterSize}
-        characterPosition={characterPosition}
-        setCharacterPosition={setCharacterPosition}
-        setDirection={setDirection}
-        canClimb={canClimb}
-        canDescend={canDescend}
-        isClimbing={isClimbing}
-        setClimbLeg={setClimbLeg}
-        setIsClimbing={setIsClimbing}
-        isMoving={isMoving}
-        setIsMoving={setIsMoving}
-        isJumping={isJumping}
-        setIsJumping={setIsJumping}
-        isFalling={isFalling}
-        setIsFalling={setIsFalling}
-      />
+        <Controls
+          level={level}
+          characterSize={characterSize}
+          characterPosition={characterPosition}
+          setCharacterPosition={setCharacterPosition}
+          direction={direction}
+          isMoving={isMoving}
+          setIsMoving={setIsMoving}
+          setDirection={setDirection}
+          setIsKicking={setIsKicking}
+          canClimb={canClimb}
+          canDescend={canDescend}
+          isClimbing={isClimbing}
+          setClimbLeg={setClimbLeg}
+          setIsClimbing={setIsClimbing}
+          isJumping={isJumping}
+          setIsJumping={setIsJumping}
+          isFalling={isFalling}
+          setIsFalling={setIsFalling}
+        />
+      </View>
     </SafeAreaView>
   ) : (
     <Text>LOADING</Text>
@@ -432,28 +223,15 @@ const Game = () => {
 
 const styles = StyleSheet.create({
   safeAreaContainer: {
-    justifyContent: "space-between",
-    alignItems: "center",
-
     width: "100%",
     height: "100%",
 
-    backgroundColor: "darkorange",
+    backgroundColor: "#F4CDD4",
   },
 
-  gameContainer: {
-    justifyContent: "center",
-    height: "60%",
-    backgroundColor: "#eee",
-
-    position: "absolute",
-    top: 0,
-  },
-
-  character: {
-    position: "absolute",
-
-    zIndex: 1,
+  container: {
+    width: "100%",
+    height: "100%",
   },
 });
 

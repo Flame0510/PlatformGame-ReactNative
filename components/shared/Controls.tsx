@@ -1,15 +1,13 @@
 import React, { useEffect } from "react";
-import {
-  TouchableOpacity,
-  View,
-  StyleSheet,
-  Text,
-  Animated,
-} from "react-native";
+import { TouchableOpacity, View, StyleSheet, Text } from "react-native";
 import { gameRowsColumns } from "../../environment/gameContainer";
 import { CharacterPosition } from "../../models/CharacterPosition";
 import { Level } from "../../models/Level";
-import { collisionY } from "./collisionY";
+import { useCollision } from "../../hooks/useCollision";
+import { useJump } from "../../hooks/useJump";
+
+let pressed = false;
+let pressedInterval: NodeJS.Timer;
 
 const Controls = ({
   level,
@@ -18,7 +16,13 @@ const Controls = ({
   characterPosition,
   setCharacterPosition,
 
+  direction,
   setDirection,
+
+  isMoving,
+  setIsMoving,
+
+  setIsKicking,
 
   canClimb,
 
@@ -27,9 +31,6 @@ const Controls = ({
   isClimbing,
   setIsClimbing,
   setClimbLeg,
-
-  isMoving,
-  setIsMoving,
 
   isJumping,
   setIsJumping,
@@ -43,7 +44,10 @@ const Controls = ({
   characterPosition: CharacterPosition;
   setCharacterPosition: (characterPosition: any) => void;
 
+  direction: "right" | "left";
   setDirection: (direction: "right" | "left") => void;
+
+  setIsKicking: (isKicking: boolean) => void;
 
   canClimb: boolean;
 
@@ -68,98 +72,67 @@ const Controls = ({
 
   let moveInterval: any;
 
-  //COLLISION X
-  const collisionX = (direction: string) => {
-    const x = Math.ceil(characterPosition.x / 20);
+  const { collisionX, collisionY } = useCollision({ level, characterPosition });
+
+  const { jump } = useJump({
+    characterPosition,
+    setCharacterPosition,
+
+    setDirection,
+
+    setIsClimbing,
+
+    isJumping,
+    setIsJumping,
+
+    isFalling,
+    setIsFalling,
+  });
+
+  //KICK
+  const kick = () => {
+    let x = Math.ceil(characterPosition.x / 20);
     const y = Math.ceil(characterPosition.y / 20);
 
-    console.log("COLL Y: ", y);
+    setIsKicking(true);
 
-    console.log("COLL POS: ", level[y][x + 1] === 1);
+    x = direction === "right" ? x + 1 : x - 1;
 
-    console.log("X POS: ", x + 1);
+    const levelTile = level[y][x];
 
-    return direction === "right"
-      ? x + 1 > columns - 1 || level[y][x + 1] === 1
-      : x - 1 < 0 || level[y][x + 1] === 1;
+    level[y][x] === "e" && (level[y][x] = 0);
+
+    setTimeout(() => setIsKicking(false), 100);
   };
 
-  //JUMP
-  const jump = () => {
-    console.log("JUMP: ", isJumping);
-    console.log("FALL: ", isFalling);
-
+  //CREATE
+  const create = () => {
+    let x = Math.ceil(characterPosition.x / 20);
     const y = Math.ceil(characterPosition.y / 20);
 
-    const jumpHeight = 80;
+    //x = direction === "right" ? x + 1 : x - 1;
 
-    console.log(y + 2 + "<" + (columns - 1));
+    level[y + 3][x] === 0 && (level[y + 3][x] = 1);
 
-    if (y + 2 < columns - jumpHeight / 20 && !isJumping && !isFalling) {
-      setIsClimbing(false);
-      setIsJumping(true);
-
-      const targetY = characterPosition.y + jumpHeight;
-
-      const jumpInterval = setInterval(() => {
-        if (characterPosition.y < targetY) {
-          characterPosition.y += 10;
-          setCharacterPosition({ ...characterPosition });
-        } else {
-          clearInterval(jumpInterval);
-          setIsJumping(false);
-          setIsFalling(true);
-        }
-      }, 1);
-
-      /* setCharacterPosition(({ x, y }) => {
-        return { x, y: y + 100 };
-      }); */
-
-      //setCharacterPosition(({ x, y }) => ({ x, y: y - 100 }));
-
-      /* Animated.timing(characterPosition.animatedValues.y, {
-        toValue: characterPosition.values.y - 50,
-        duration: 100,
-        useNativeDriver: true,
-      }).start(); */
-    }
+    setIsKicking(true);
+    setTimeout(() => setIsKicking(false), 100);
   };
 
+  //MOVE
   const move = (direction: string) => {
-    /* switch (direction) {
-      case "left":
-        Animated.timing(characterPosition.animatedValues.x, {
-          toValue: characterPosition.values.x - 10,
-          duration: 100,
-          useNativeDriver: true,
-        }).start(() => (characterPosition.values.x -= 10));
-        break;
+    clearInterval(pressedInterval);
 
-      case "right":
-        Animated.timing(characterPosition.animatedValues.x, {
-          toValue: characterPosition.values.x + 10,
-          duration: 100,
-          useNativeDriver: true,
-        }).start(() => (characterPosition.values.x += 10));
-        break;
-s
-      case "up":
-        break;
-
-      case "down":
-        break;
-    } */
-
-    if (!isMoving && !isFalling) {
+    if (!isMoving && !isJumping && !isFalling) {
       switch (direction) {
         case "left":
           setIsClimbing(false);
 
+          pressed = true;
+
           setDirection("left");
 
           if (!collisionX("left")) {
-            const target = characterPosition.x - moveVelocity;
+            let target = characterPosition.x - moveVelocity;
 
             moveInterval = setInterval(() => {
               if (characterPosition.x - 10 >= target) {
@@ -169,19 +142,22 @@ s
               } else {
                 clearInterval(moveInterval);
                 setIsMoving(false);
-                !collisionY(level, characterPosition) && setIsFalling(true);
+                !collisionY() ? setIsFalling(true) : pressed && move("left");
               }
-            }, 1);
+            }, 20);
           }
+
           break;
 
         case "right":
-          setDirection("right");
-
           setIsClimbing(false);
 
+          pressed = true;
+
+          setDirection("right");
+
           if (!collisionX("right")) {
-            const target = characterPosition.x + moveVelocity;
+            let target = characterPosition.x + moveVelocity;
 
             moveInterval = setInterval(() => {
               if (characterPosition.x + 10 <= target) {
@@ -191,10 +167,11 @@ s
               } else {
                 clearInterval(moveInterval);
                 setIsMoving(false);
-                !collisionY(level, characterPosition) && setIsFalling(true);
+                !collisionY() ? setIsFalling(true) : pressed && move("right");
               }
-            }, 1);
+            }, 20);
           }
+
           break;
 
         case "up":
@@ -220,19 +197,6 @@ s
 
         case "down":
           if (characterPosition.y > 0) {
-            /* const target = characterPosition.y - moveVelocity;
-
-            moveInterval = setInterval(() => {
-              if (characterPosition.y - 10 <= target) {
-                characterPosition.y -= 10;
-                setCharacterPosition({ ...characterPosition });
-                setIsMoving(true);
-              } else {
-                clearInterval(moveInterval);
-                setIsMoving(false);
-              }
-            }, 1); */
-
             characterPosition.y -= 20;
             setCharacterPosition({ ...characterPosition });
 
@@ -262,41 +226,116 @@ s
   return (
     <View style={styles.container}>
       <View style={styles.leftContainer}>
-        <TouchableOpacity
-          style={[styles.controlBtn, { width: 50, height: 50 }]}
-          onPressIn={() => (canClimb ? move("up") : jump())}
-          onPressOut={() => setIsMoving(false)}
-        />
+        <View
+          style={{
+            alignItems: "center",
+            flexDirection: "row",
+          }}
+        >
+          <TouchableOpacity
+            style={[
+              styles.controlBtn,
+              {
+                width: 50,
+                height: 50,
+                borderTopLeftRadius: 6,
+                borderTopRightRadius: 6,
+
+                transform: [{ rotate: "-30deg" }],
+              },
+            ]}
+            onPressIn={() => (canClimb ? move("up") : jump("left"))}
+            onPressOut={() => setIsMoving(false)}
+          />
+
+          <TouchableOpacity
+            style={[
+              styles.controlBtn,
+              {
+                width: 50,
+                height: 80,
+                borderTopLeftRadius: 6,
+                borderTopRightRadius: 6,
+              },
+            ]}
+            onPressIn={() => (canClimb ? move("up") : jump())}
+            onPressOut={() => setIsMoving(false)}
+          />
+
+          <TouchableOpacity
+            style={[
+              styles.controlBtn,
+              {
+                width: 50,
+                height: 50,
+                borderTopLeftRadius: 6,
+                borderTopRightRadius: 6,
+
+                transform: [{ rotate: "30deg" }],
+              },
+            ]}
+            onPressIn={() => (canClimb ? move("up") : jump("right"))}
+            onPressOut={() => setIsMoving(false)}
+          />
+        </View>
 
         <View style={{ alignItems: "center", flexDirection: "row" }}>
           <TouchableOpacity
-            style={[styles.controlBtn, { width: 100, height: 50 }]}
+            style={[
+              styles.controlBtn,
+              {
+                width: 100,
+                height: 50,
+                borderTopLeftRadius: 6,
+                borderBottomLeftRadius: 6,
+              },
+            ]}
             onPressIn={() => move("left")}
-            onPressOut={
-              () => console.log("PRESSOUT")
-              /* clearInterval(moveInterval) */
-            }
+            onPressOut={() => (pressed = false)}
           />
           <TouchableOpacity
-            style={[styles.controlBtn, { width: 100, height: 50 }]}
+            style={[
+              styles.controlBtn,
+              {
+                width: 100,
+                height: 50,
+                borderTopRightRadius: 6,
+                borderBottomRightRadius: 6,
+              },
+            ]}
             onPressIn={() => move("right")}
-            onPressOut={() => clearInterval()}
+            onPressOut={() => (pressed = false)}
           />
         </View>
 
         <TouchableOpacity
-          style={[styles.controlBtn, { width: 50, height: 50 }]}
+          style={[
+            styles.controlBtn,
+            {
+              width: 50,
+              height: 80,
+              borderBottomLeftRadius: 6,
+              borderBottomRightRadius: 6,
+            },
+          ]}
           onPressIn={() => move("down")}
-          onPressOut={() => clearInterval(moveInterval)}
         />
       </View>
+      <View>
+        <TouchableOpacity
+          style={[styles.controlBtn, styles.actionBtn]}
+          onPress={kick}
+        >
+          <Text style={styles.btnText}>Kick</Text>
+        </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.controlBtn, { height: 200 }]}
-        onPress={jump}
-      >
-        <Text style={styles.colorBtnText}>JUMP</Text>
-      </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.controlBtn, styles.actionBtn]}
+          onPress={create}
+        >
+          <Text style={styles.btnText}>Create</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 };
@@ -307,13 +346,18 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
 
-    //backgroundColor: "#1c1c1c",
+    width: "100%",
+    height: "40%",
+
+    backgroundColor: "#F4CDD4",
 
     paddingHorizontal: 20,
     paddingVertical: 40,
 
     position: "absolute",
     bottom: 0,
+
+    opacity: 1,
   },
 
   leftContainer: {
@@ -324,12 +368,20 @@ const styles = StyleSheet.create({
   controlBtn: {
     justifyContent: "center",
     margin: 10,
-    backgroundColor: "#333",
+    backgroundColor: "#1386A1",
     padding: 16,
   },
 
-  colorBtnText: {
+  actionBtn: {
+    width: 80,
+    height: 100,
+
+    borderRadius: 6,
+  },
+
+  btnText: {
     color: "#fff",
+    textAlign: "center",
   },
 });
 
