@@ -14,6 +14,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     flexDirection: "row",
 
+    margin: 12,
+
     position: "absolute",
     top: 0,
     right: 0,

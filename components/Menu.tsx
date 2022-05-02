@@ -79,6 +79,8 @@ const styles = StyleSheet.create({
 
     paddingVertical: 24,
     paddingHorizontal: 48,
+
+    borderRadius: 6,
   },
   menuBtnText: {
     color: "#fff",

@@ -60,7 +60,7 @@ export const useGravity = ({
       } else {
         clearInterval(gravityInterval);
       }
-    }, tick);
+    }, 30);
   };
 
   useEffect(() => {

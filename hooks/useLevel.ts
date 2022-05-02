@@ -22,11 +22,11 @@ export const useLevel = ({
 
     console.log("\nNEW MAP\n\n\n");
 
-    const minX = characterPosition.x / 20 < columns / 2 ? 0 : columns / 2 - 1;
+    const minX = characterPosition.x / 20 < columns / 2 ? columns / 2 - 1 : 0;
     const maxX =
-      characterPosition.x / 20 < columns / 2 ? columns / 2 - 1 : columns - 1;
+      characterPosition.x / 20 < columns / 2 ? columns - 1 : columns / 2 - 1;
 
-    console.log("MIN X: " + minX + "---MAX X: " + maxX);
+    //console.log("MIN X: " + minX + "---MAX X: " + maxX);
 
     //FINISH POSITION
     const finishPosition = {
@@ -34,9 +34,10 @@ export const useLevel = ({
       y: Math.ceil(Math.random() * (rows - 2) + 2),
     };
 
-    finishPosition.y + 1 > rows - 1 && (finishPosition.y -= 1);
+    finishPosition.y + 1 > rows - 3 &&
+      (finishPosition.y = finishPosition.y -= 3);
 
-    console.warn("FINISH POS: ", finishPosition);
+    //console.warn("FINISH POS: ", finishPosition);
 
     for (let r = 0; r < rows; r++) {
       let rowHavePlatform;
@@ -44,7 +45,12 @@ export const useLevel = ({
       let startPoint;
       let platformLenght;
 
-      if (r > 1 && !rowsWithPlatforms[r - 1] && !rowsWithPlatforms[r - 2]) {
+      if (
+        r > 1 &&
+        !rowsWithPlatforms[r - 1] &&
+        !rowsWithPlatforms[r - 2] &&
+        r < rows - 3
+      ) {
         rowHavePlatform = Math.random() * 1 > 0.5 ? 1 : 0;
         rowsWithPlatforms[r] = 1;
 
@@ -73,13 +79,13 @@ export const useLevel = ({
         } */
 
         if (rowHavePlatform && startPoint && platformLenght) {
-          console.log("R:", r);
+          // console.log("R:", r);
 
-          console.log("C: ", c);
+          // console.log("C: ", c);
 
-          console.log("START: ", startPoint);
-          console.log("PlatformLenght: ", platformLenght * 20);
-          console.log("END: ", startPoint + platformLenght);
+          // console.log("START: ", startPoint);
+          // console.log("PlatformLenght: ", platformLenght * 20);
+          // console.log("END: ", startPoint + platformLenght);
 
           c >= startPoint &&
             c <= startPoint + platformLenght &&
@@ -112,7 +118,7 @@ export const useLevel = ({
 
     //level.reverse();
 
-    console.log(rowsWithPlatforms.reverse());
+    //console.log(rowsWithPlatforms.reverse());
 
     level[finishPosition.y + 1][finishPosition.x] = "f";
     level[finishPosition.y][finishPosition.x] = "f";
@@ -129,7 +135,7 @@ export const useLevel = ({
   };
 
   useEffect(() => {
-    //createLevel();
+    createLevel();
   }, []);
 
   return createLevel;

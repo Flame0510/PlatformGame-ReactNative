@@ -160,7 +160,7 @@ const Game = () => {
   //USE GRAVITY
   gameWindowSize &&
     useGravity({
-      tick: 1,
+      tick: 50,
       gameWindowSize,
       level,
       characterPosition,
@@ -301,9 +301,12 @@ const styles = StyleSheet.create({
   },
 
   pauseBtn: {
+    margin: 12,
     backgroundColor: "#1386A1",
 
     padding: 12,
+
+    borderRadius: 6,
 
     position: "absolute",
     top: 0,

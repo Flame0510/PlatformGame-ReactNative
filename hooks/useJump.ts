@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { gameRowsColumns } from "../environment/gameContainer";
 import { CharacterPosition } from "../models/CharacterPosition";
 import { Direction } from "../models/Direction";
@@ -58,9 +59,11 @@ export const useJump = ({
           characterPosition.y += 10;
 
           direction === "right"
-            ? ((characterPosition.x += (jumpHeight / 4)/8), setDirection("right"))
+            ? ((characterPosition.x += jumpHeight / 4 / 8),
+              setDirection("right"))
             : direction === "left" &&
-              ((characterPosition.x -= (jumpHeight / 4)/8), setDirection("left"));
+              ((characterPosition.x -= jumpHeight / 4 / 8),
+              setDirection("left"));
 
           setCharacterPosition({ ...characterPosition });
         } else {
@@ -68,7 +71,7 @@ export const useJump = ({
           setIsJumping(false);
           setIsFalling(true);
         }
-      }, 1);
+      }, 25);
     }
   };
 
