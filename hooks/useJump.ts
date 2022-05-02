@@ -45,7 +45,7 @@ export const useJump = ({
         ? 80
         : initialJumpHeight - rows - initialJumpHeight / 20;
 
-    console.log(y + "<" + (rows - jumpHeight / 20));
+    //console.log(y + "<" + (rows - jumpHeight / 20));
 
     if (y < rows - jumpHeight / 20 && !isJumping && !isFalling) {
       setIsClimbing(false);

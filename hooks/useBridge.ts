@@ -30,7 +30,7 @@ export const useBridge = ({
     const x = Math.ceil(characterPosition.x / 20);
     const y = Math.ceil(characterPosition.y / 20);
 
-    console.log("BRIDGE CHECK: ", y > 0 && level[y - 1][x] === "b");
+    //console.log("BRIDGE CHECK: ", y > 0 && level[y - 1][x] === "b");
 
     if (y > 0 && level[y - 1][x] === "b") {
       setTimeout(() => {

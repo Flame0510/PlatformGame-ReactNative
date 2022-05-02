@@ -5,14 +5,20 @@ import {
   StyleSheet,
   TouchableOpacity,
   SafeAreaView,
+  Dimensions,
 } from "react-native";
 import { navigate } from "./shared/RootNavigation";
+
+const width = Dimensions.get("screen").width;
+
+const isMobile = width < 768;
 
 const Menu = () => {
   return (
     <SafeAreaView style={styles.safeAreaContainer}>
       <View style={styles.container}>
         <Text style={styles.title}>PLATFORM GAME - REACT NATIVE</Text>
+
         <TouchableOpacity
           style={styles.menuBtn}
           onPress={() => navigate("Game", {})}
@@ -35,9 +41,11 @@ const styles = StyleSheet.create({
     height: "100%",
   },
   title: {
+    width: "80%",
     color: "#1386A1",
 
-    fontSize: 48,
+    textAlign: "center",
+    fontSize: isMobile ? 24 : 48,
   },
   menuBtn: {
     backgroundColor: "#1386A1",
@@ -48,7 +56,7 @@ const styles = StyleSheet.create({
   menuBtnText: {
     color: "#fff",
 
-    fontSize: 32,
+    fontSize: isMobile ? 24 : 48,
   },
 });
 

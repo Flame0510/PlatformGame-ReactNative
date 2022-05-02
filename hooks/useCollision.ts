@@ -25,7 +25,7 @@ export const useCollision = ({
 
     return direction === "right"
       ? x + 1 > columns - 1 || level[y][x + 1] === 1
-      : x - 1 < 0 || level[y][x + 1] === 1;
+      : x - 1 < 0 || level[y][x - 1] === 1;
   };
 
   //COLLISION Y

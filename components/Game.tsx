@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   Dimensions,
   Animated,
+  TouchableOpacity,
 } from "react-native";
 import { gameRowsColumns } from "../environment/gameContainer";
 import CoinCounter from "./shared/CoinCounter";
@@ -17,8 +18,11 @@ import { useFinish } from "../hooks/useFinish";
 import { useGravity } from "../hooks/useGravity";
 import { useLevel } from "../hooks/useLevel";
 import GameContainer from "./shared/GameCointainer";
+import Pause from "./Pause";
 
 const Game = () => {
+  const [isPaused, setIsPaused] = useState(false);
+
   const [direction, setDirection] = useState<"right" | "left">("right");
 
   const [isKicking, setIsKicking] = useState(false);
@@ -170,6 +174,8 @@ const Game = () => {
       duration: 1000,
       useNativeDriver: true,
     }).start();
+
+    console.log(Dimensions.get("window").height);
   }, []);
 
   return level ? (
@@ -182,6 +188,30 @@ const Game = () => {
           },
         ]}
       >
+        <View
+          style={{
+            width: "100%",
+            height: 100,
+            backgroundColor: "#F4CDD4",
+
+            position: "absolute",
+            top: -100,
+            left: 0,
+
+            zIndex: 100,
+          }}
+        />
+
+        {/* PAUSE */}
+        <TouchableOpacity
+          style={styles.pauseBtn}
+          onPress={() => setIsPaused(true)}
+        >
+          <Text>I I</Text>
+        </TouchableOpacity>
+
+        <Pause visibility={isPaused} setVisibility={setIsPaused} />
+
         <CoinCounter coinCounter={coinCounter} />
 
         <GameContainer
@@ -204,8 +234,6 @@ const Game = () => {
             position: "absolute",
             top: 10,
             left: 10,
-
-            zIndex: 10,
 
             opacity: 1,
           }}
@@ -269,6 +297,18 @@ const styles = StyleSheet.create({
 
     width: "100%",
     height: "100%",
+  },
+
+  pauseBtn: {
+    backgroundColor: "#1386A1",
+
+    padding: 12,
+
+    position: "absolute",
+    top: 0,
+    left: 0,
+
+    zIndex: 10,
   },
 });
 

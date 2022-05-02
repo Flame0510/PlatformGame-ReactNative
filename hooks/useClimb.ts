@@ -35,7 +35,7 @@ export const useClimb = ({
     const x = Math.ceil(characterPosition.x / 20);
     const y = Math.ceil(characterPosition.y / 20);
 
-    console.log("CAN CLIMB: ", level[y][x] === "l");
+    //console.log("CAN CLIMB: ", level[y][x] === "l");
 
     setCanClimb(level[y][x] === "l");
 

@@ -23,7 +23,3 @@ const App = () => {
 };
 
 export default App;
-
-{
-  /* <StatusBar style="auto" /> */
-}

@@ -134,6 +134,12 @@ const Controls = ({
           if (!collisionX("left")) {
             let target = characterPosition.x - moveVelocity;
 
+            /* characterPosition.x -= 20;
+            setCharacterPosition({ ...characterPosition });
+            setIsMoving(true);
+            setIsMoving(false);
+            !collisionY() ? setIsFalling(true) : pressed && move("left"); */
+
             moveInterval = setInterval(() => {
               if (characterPosition.x - 10 >= target) {
                 characterPosition.x -= 10;
@@ -144,7 +150,7 @@ const Controls = ({
                 setIsMoving(false);
                 !collisionY() ? setIsFalling(true) : pressed && move("left");
               }
-            }, 20);
+            }, 50);
           }
 
           break;
@@ -159,6 +165,12 @@ const Controls = ({
           if (!collisionX("right")) {
             let target = characterPosition.x + moveVelocity;
 
+            /* characterPosition.x += 20;
+            setCharacterPosition({ ...characterPosition });
+            setIsMoving(true);
+            setIsMoving(false);
+            !collisionY() ? setIsFalling(true) : pressed && move("right"); */
+
             moveInterval = setInterval(() => {
               if (characterPosition.x + 10 <= target) {
                 characterPosition.x += 10;
@@ -169,7 +181,7 @@ const Controls = ({
                 setIsMoving(false);
                 !collisionY() ? setIsFalling(true) : pressed && move("right");
               }
-            }, 20);
+            }, 50);
           }
 
           break;
@@ -238,11 +250,10 @@ const Controls = ({
                 height: 50,
                 borderTopLeftRadius: 6,
                 borderTopRightRadius: 6,
-
-                transform: [{ rotate: "-30deg" }],
               },
             ]}
             onPressIn={() => jump("left")}
+            onPressOut={() => setIsMoving(false)}
           />
 
           <TouchableOpacity
@@ -267,8 +278,6 @@ const Controls = ({
                 height: 50,
                 borderTopLeftRadius: 6,
                 borderTopRightRadius: 6,
-
-                transform: [{ rotate: "30deg" }],
               },
             ]}
             onPressIn={() => jump("right")}
@@ -288,7 +297,9 @@ const Controls = ({
             ]}
             onPressIn={() => move("left")}
             onPressOut={() => (pressed = false)}
-          />
+          >
+            <Text>{"<--"}</Text>
+          </TouchableOpacity>
           <TouchableOpacity
             style={[
               styles.controlBtn,
@@ -301,7 +312,9 @@ const Controls = ({
             ]}
             onPressIn={() => move("right")}
             onPressOut={() => (pressed = false)}
-          />
+          >
+            <Text>{"-->"}</Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity

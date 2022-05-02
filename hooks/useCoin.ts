@@ -28,7 +28,7 @@ export const useCoin = ({
       y + 1 > columns - 1 ||
       (y + 2 > columns - 1 && (y = columns));
 
-    console.log("Y:", y);
+    //console.log("Y:", y);
 
     if (y+2 < rows - 1) {
       level[y][x] === "c" &&

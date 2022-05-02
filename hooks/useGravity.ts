@@ -29,9 +29,9 @@ export const useGravity = ({
 
   const gravity = (tick: number) => {
     gravityInterval = setInterval(() => {
-      console.log("TICK");
+      //console.log("TICK");
 
-      console.log("IS JUMPING: ", isJumping);
+      //console.log("IS JUMPING: ", isJumping);
 
       //console.log(characterPosition.y);
 

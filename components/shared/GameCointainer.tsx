@@ -27,11 +27,11 @@ const GameContainer = ({
   const scaleX = width >= 768 ? width / (width / 2) : 1;
   const scaleY = width >= 768 ? height / (height / 2) : 1;
 
-  console.log("WIDTH ", width);
-  console.log("HEIGHT ", height);
-  console.log("SCALEY: ", scaleY);
+  // console.log("WIDTH ", width);
+  // console.log("HEIGHT ", height);
+  // console.log("SCALEY: ", scaleY);
 
-  console.log("gameHeigth: ", rows * 20 * scaleX);
+  // console.log("gameHeigth: ", rows * 20 * scaleX);
 
   useEffect(() => {
     const y = -((rows * 20) / 2 - characterPosition.y);
@@ -39,7 +39,7 @@ const GameContainer = ({
 
     Animated.timing(windowY, {
       toValue: y,
-      duration: 500,
+      //duration: 1000,
       useNativeDriver: true,
     }).start();
 
@@ -99,6 +99,8 @@ const GameContainer = ({
           top: (rows * 20) / 2,
         }}
       /> */}
+
+      
 
       {/* CHARACTER */}
       <Character
