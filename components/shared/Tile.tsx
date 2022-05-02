@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import { View, Text } from "react-native";
+import { View, Text, Image } from "react-native";
 import { gameRowsColumns } from "../../environment/gameContainer";
 import Ladder from "./Ladder";
 
@@ -79,6 +79,11 @@ const Tile = ({
       >
         {element === "l" ? (
           <Ladder />
+        ) : element === "c" ? (
+          <Image
+            source={require("../../assets/fish.png")}
+            style={{ width: 20, height: 20 }}
+          />
         ) : (
           <Text style={{ color, textAlign: "center", fontSize: 10 }}>
             {/* {rowKey},{key} */}
@@ -87,7 +92,7 @@ const Tile = ({
         )}
       </View>
     );
-  }, [level[rowKey][columnKey]]);  
+  }, [level[rowKey][columnKey]]);
 };
 
 export default Tile;

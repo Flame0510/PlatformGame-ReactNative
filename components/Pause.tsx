@@ -1,3 +1,5 @@
+import { faVolumeHigh, faVolumeXmark } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 import React from "react";
 import {
   View,
@@ -6,6 +8,7 @@ import {
   TouchableOpacity,
   Dimensions,
 } from "react-native";
+import { useMusic } from "../hooks/useMusic";
 import { navigate } from "./shared/RootNavigation";
 
 const width = Dimensions.get("screen").width;
@@ -20,9 +23,11 @@ const Pause = ({
   visibility: boolean;
   setVisibility: (visibility: boolean) => void;
 }) => {
+  const { isMuted, playSound, resumeSound, stopSound, switchMute } = useMusic();
+
   return visibility ? (
     <View style={styles.container}>
-      <Text style={styles.title}>Pausa</Text>
+      <Text style={styles.title}>paus​a</Text>
 
       <TouchableOpacity
         style={styles.pausedBtn}
@@ -36,6 +41,14 @@ const Pause = ({
         onPress={() => navigate("Menu", {})}
       >
         <Text style={styles.pausedBtnText}>Vai al Menu</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={styles.muteUnmuteBtn} onPress={switchMute}>
+        <FontAwesomeIcon
+          icon={isMuted ? faVolumeHigh : faVolumeXmark}
+          size={24}
+          color={"#fff"}
+        />
       </TouchableOpacity>
     </View>
   ) : null;
@@ -61,6 +74,8 @@ const styles = StyleSheet.create({
   title: {
     color: "#1386A1",
 
+    fontFamily: "steelworks",
+
     fontSize: isMobile ? 32 : 48,
   },
 
@@ -75,9 +90,16 @@ const styles = StyleSheet.create({
   pausedBtnText: {
     color: "#fff",
 
+    fontFamily: "workSans",
     textAlign: "center",
 
     fontSize: isMobile ? 24 : 32,
+  },
+
+  muteUnmuteBtn: {
+    alignItems: "center",
+    backgroundColor: "#1386A1",
+    padding: 12,
   },
 });
 

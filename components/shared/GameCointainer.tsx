@@ -133,7 +133,7 @@ const GameContainer = ({
               break;
 
             case "c":
-              backgroundColor = "gold";
+              backgroundColor = "transparent";
               text = "c";
               break;
 
@@ -149,7 +149,7 @@ const GameContainer = ({
               break;
 
             case "f":
-              backgroundColor = "#555";
+              backgroundColor = "#1386A1";
           }
 
           return (

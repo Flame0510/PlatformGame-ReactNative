@@ -1,39 +1,35 @@
 import React from "react";
-import { View, Text } from "react-native";
+import { View, Text, Image, StyleSheet } from "react-native";
 
 const CoinCounter = ({ coinCounter }: { coinCounter: number }) => (
-  <View
-    style={{
-      alignItems: "center",
-      flexDirection: "row",
+  <View style={styles.container}>
+    <Image source={require("../../assets/fish.png")} style={styles.coinIcon} />
 
-      position: "absolute",
-      top: 0,
-      right: 0,
-
-      padding: 8,
-
-      zIndex: 1,
-    }}
-  >
-    <Text>Coins: </Text>
-    <View
-      style={{
-        justifyContent: "center",
-        alignItems: "center",
-
-        width: 20,
-        height: 20,
-        backgroundColor: "gold",
-
-        borderRadius: 12,
-
-        zIndex: 1,
-      }}
-    >
-      <Text style={{ fontSize: 10 }}>{coinCounter}</Text>
-    </View>
+    <Text style={styles.counterText}>: {coinCounter}</Text>
   </View>
 );
+
+const styles = StyleSheet.create({
+  container: {
+    alignItems: "center",
+    flexDirection: "row",
+
+    position: "absolute",
+    top: 0,
+    right: 0,
+
+    padding: 8,
+
+    zIndex: 1,
+  },
+  coinIcon: {
+    width: 40,
+    height: 40,
+  },
+  counterText: {
+    fontFamily: "workSans",
+    fontSize: 24,
+  },
+});
 
 export default CoinCounter;

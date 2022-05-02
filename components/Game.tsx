@@ -19,6 +19,8 @@ import { useGravity } from "../hooks/useGravity";
 import { useLevel } from "../hooks/useLevel";
 import GameContainer from "./shared/GameCointainer";
 import Pause from "./Pause";
+import { faPause } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
 
 const Game = () => {
   const [isPaused, setIsPaused] = useState(false);
@@ -179,105 +181,103 @@ const Game = () => {
   }, []);
 
   return level ? (
-    <SafeAreaView style={styles.safeAreaContainer}>
-      <Animated.View
-        style={[
-          styles.container,
-          {
-            opacity: fadeValue,
-          },
-        ]}
+    <Animated.View
+      style={[
+        styles.container,
+        {
+          opacity: fadeValue,
+        },
+      ]}
+    >
+      <View
+        style={{
+          width: "100%",
+          height: 100,
+          backgroundColor: "#F4CDD4",
+
+          position: "absolute",
+          top: -100,
+          left: 0,
+
+          zIndex: 100,
+        }}
+      />
+
+      {/* PAUSE BTN */}
+      <TouchableOpacity
+        style={styles.pauseBtn}
+        onPress={() => setIsPaused(true)}
       >
-        <View
-          style={{
-            width: "100%",
-            height: 100,
-            backgroundColor: "#F4CDD4",
+        <FontAwesomeIcon icon={faPause} size={24} color={"#fff"} />
+      </TouchableOpacity>
 
-            position: "absolute",
-            top: -100,
-            left: 0,
+      <Pause visibility={isPaused} setVisibility={setIsPaused} />
 
-            zIndex: 100,
-          }}
-        />
+      <CoinCounter coinCounter={coinCounter} />
 
-        {/* PAUSE */}
-        <TouchableOpacity
-          style={styles.pauseBtn}
-          onPress={() => setIsPaused(true)}
-        >
-          <Text>I I</Text>
-        </TouchableOpacity>
+      <GameContainer
+        level={level}
+        characterSize={characterSize}
+        characterPosition={characterPosition}
+        direction={direction}
+        isMoving={isMoving}
+        isClimbing={isClimbing}
+        climbLeg={climbLeg}
+        isKicking={isKicking}
+        isJumping={isJumping}
+        isFalling={isFalling}
+      />
 
-        <Pause visibility={isPaused} setVisibility={setIsPaused} />
+      <View
+        style={{
+          justifyContent: "center",
+          backgroundColor: "#eee",
+          position: "absolute",
+          top: 10,
+          left: 10,
 
-        <CoinCounter coinCounter={coinCounter} />
+          opacity: 0,
+        }}
+      >
+        <Text>Scale: {width >= 768 ? width / (width / 2) : 1}</Text>
+        <Text>
+          WIDTH: {width} - HEIGHT: {height}
+        </Text>
+        <Text>
+          GAME WIDTH: {columns * 20} - GAME HEIGHT: {rows * 20}
+        </Text>
+        <Text>LEVEL: {levelCounter}</Text>
+        <Text>DIRECTION: {direction}</Text>
+        <Text>isMoving: {isMoving ? "SI" : "NO"}</Text>
+        <Text>canDescend: {canDescend ? "SI" : "NO"}</Text>
+        <Text>canClimb: {canClimb ? "SI" : "NO"}</Text>
+        <Text>isFalling: {isFalling ? "SI" : "NO"}</Text>
+        <Text>
+          X: {characterPosition.x} - Y: {characterPosition.y}
+        </Text>
+      </View>
 
-        <GameContainer
-          level={level}
-          characterSize={characterSize}
-          characterPosition={characterPosition}
-          direction={direction}
-          isMoving={isMoving}
-          isClimbing={isClimbing}
-          climbLeg={climbLeg}
-          isKicking={isKicking}
-          isJumping={isJumping}
-          isFalling={isFalling}
-        />
-
-        <View
-          style={{
-            justifyContent: "center",
-            backgroundColor: "#eee",
-            position: "absolute",
-            top: 10,
-            left: 10,
-
-            opacity: 1,
-          }}
-        >
-          <Text>Scale: {width >= 768 ? width / (width / 2) : 1}</Text>
-          <Text>
-            WIDTH: {width} - HEIGHT: {height}
-          </Text>
-          <Text>
-            GAME WIDTH: {columns * 20} - GAME HEIGHT: {rows * 20}
-          </Text>
-          <Text>LEVEL: {levelCounter}</Text>
-          <Text>DIRECTION: {direction}</Text>
-          <Text>isMoving: {isMoving ? "SI" : "NO"}</Text>
-          <Text>canDescend: {canDescend ? "SI" : "NO"}</Text>
-          <Text>canClimb: {canClimb ? "SI" : "NO"}</Text>
-          <Text>isFalling: {isFalling ? "SI" : "NO"}</Text>
-          <Text>
-            X: {characterPosition.x} - Y: {characterPosition.y}
-          </Text>
-        </View>
-
-        <Controls
-          level={level}
-          characterSize={characterSize}
-          characterPosition={characterPosition}
-          setCharacterPosition={setCharacterPosition}
-          direction={direction}
-          isMoving={isMoving}
-          setIsMoving={setIsMoving}
-          setDirection={setDirection}
-          setIsKicking={setIsKicking}
-          canClimb={canClimb}
-          canDescend={canDescend}
-          isClimbing={isClimbing}
-          setClimbLeg={setClimbLeg}
-          setIsClimbing={setIsClimbing}
-          isJumping={isJumping}
-          setIsJumping={setIsJumping}
-          isFalling={isFalling}
-          setIsFalling={setIsFalling}
-        />
-      </Animated.View>
-    </SafeAreaView>
+      <Controls
+        level={level}
+        characterSize={characterSize}
+        characterPosition={characterPosition}
+        setCharacterPosition={setCharacterPosition}
+        direction={direction}
+        isMoving={isMoving}
+        setIsMoving={setIsMoving}
+        setDirection={setDirection}
+        setIsKicking={setIsKicking}
+        canClimb={canClimb}
+        canDescend={canDescend}
+        isClimbing={isClimbing}
+        setClimbLeg={setClimbLeg}
+        setIsClimbing={setIsClimbing}
+        isJumping={isJumping}
+        setIsJumping={setIsJumping}
+        isFalling={isFalling}
+        setIsFalling={setIsFalling}
+      />
+    </Animated.View>
   ) : (
     <Text>LOADING</Text>
   );
@@ -297,6 +297,7 @@ const styles = StyleSheet.create({
 
     width: "100%",
     height: "100%",
+    backgroundColor: "#F4CDD4",
   },
 
   pauseBtn: {

@@ -157,7 +157,7 @@ const Character = ({
           </View>
         </View>
       ),
-      [isMoving, climbLeg, isJumping, isFalling]
+      [isMoving, isKicking, climbLeg, isJumping, isFalling]
     );
 
   return (

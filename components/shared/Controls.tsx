@@ -1,10 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { TouchableOpacity, View, StyleSheet, Text } from "react-native";
+import {
+  TouchableOpacity,
+  View,
+  StyleSheet,
+  Text,
+  Dimensions,
+} from "react-native";
 import { gameRowsColumns } from "../../environment/gameContainer";
 import { CharacterPosition } from "../../models/CharacterPosition";
 import { Level } from "../../models/Level";
 import { useCollision } from "../../hooks/useCollision";
 import { useJump } from "../../hooks/useJump";
+import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+import {
+  faBolt,
+  faCaretDown,
+  faCaretLeft,
+  faCaretRight,
+  faCaretUp,
+  faCube,
+  faSquareArrowUpRight,
+  faSquareCaretDown,
+  faSquareCaretLeft,
+  faSquareCaretRight,
+  faSquareCaretUp,
+} from "@fortawesome/free-solid-svg-icons";
 
 let pressed = false;
 let pressedInterval: NodeJS.Timer;
@@ -68,7 +88,13 @@ const Controls = ({
 }) => {
   const { rows, columns } = gameRowsColumns;
 
+  const width = Dimensions.get("screen").width;
+
+  const isMobile = width < 768;
+
   const moveVelocity = 20;
+  const buttonSize = isMobile ? 64 : 96;
+  const buttonColor = "#1386A1";
 
   let moveInterval: any;
 
@@ -235,115 +261,102 @@ const Controls = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.leftContainer}>
-        <View
-          style={{
-            alignItems: "center",
-            flexDirection: "row",
-          }}
-        >
+      <View style={[styles.leftContainer, { maxWidth: isMobile ? 200 : 300 }]}>
+        <View style={styles.topBtnContainer}>
           <TouchableOpacity
-            style={[
-              styles.controlBtn,
-              {
-                width: 50,
-                height: 50,
-                borderTopLeftRadius: 6,
-                borderTopRightRadius: 6,
-              },
-            ]}
+            style={[styles.controlBtn, { transform: [{ scaleX: -1 }] }]}
             onPressIn={() => jump("left")}
             onPressOut={() => setIsMoving(false)}
-          />
+          >
+            <FontAwesomeIcon
+              icon={faSquareArrowUpRight}
+              size={buttonSize}
+              color={buttonColor}
+            />
+          </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.controlBtn,
-              {
-                width: 50,
-                height: 80,
-                borderTopLeftRadius: 6,
-                borderTopRightRadius: 6,
-              },
-            ]}
+            style={[styles.controlBtn]}
             onPressIn={() => (canClimb ? move("up") : jump())}
             onPressOut={() => setIsMoving(false)}
-          />
+          >
+            <FontAwesomeIcon
+              icon={faSquareCaretUp}
+              size={buttonSize}
+              color={buttonColor}
+            />
+          </TouchableOpacity>
 
           <TouchableOpacity
-            style={[
-              styles.controlBtn,
-              {
-                width: 50,
-                height: 50,
-                borderTopLeftRadius: 6,
-                borderTopRightRadius: 6,
-              },
-            ]}
+            style={[styles.controlBtn, {}]}
             onPressIn={() => jump("right")}
-          />
+          >
+            <FontAwesomeIcon
+              icon={faSquareArrowUpRight}
+              size={buttonSize}
+              color={buttonColor}
+            />
+          </TouchableOpacity>
         </View>
 
-        <View style={{ alignItems: "center", flexDirection: "row" }}>
+        <View style={styles.leftRightBtnContainer}>
           <TouchableOpacity
-            style={[
-              styles.controlBtn,
-              {
-                width: 100,
-                height: 50,
-                borderTopLeftRadius: 6,
-                borderBottomLeftRadius: 6,
-              },
-            ]}
+            style={[styles.controlBtn]}
             onPressIn={() => move("left")}
             onPressOut={() => (pressed = false)}
           >
-            <Text>{"<--"}</Text>
+            <FontAwesomeIcon
+              icon={faSquareCaretLeft}
+              size={buttonSize}
+              color={buttonColor}
+            />
           </TouchableOpacity>
           <TouchableOpacity
-            style={[
-              styles.controlBtn,
-              {
-                width: 100,
-                height: 50,
-                borderTopRightRadius: 6,
-                borderBottomRightRadius: 6,
-              },
-            ]}
+            style={[styles.controlBtn]}
             onPressIn={() => move("right")}
             onPressOut={() => (pressed = false)}
           >
-            <Text>{"-->"}</Text>
+            <FontAwesomeIcon
+              icon={faSquareCaretRight}
+              size={buttonSize}
+              color={buttonColor}
+            />
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity
-          style={[
-            styles.controlBtn,
-            {
-              width: 50,
-              height: 80,
-              borderBottomLeftRadius: 6,
-              borderBottomRightRadius: 6,
-            },
-          ]}
+          style={[styles.controlBtn]}
           onPressIn={() => move("down")}
           onPressOut={() => setIsMoving(false)}
-        />
+        >
+          <FontAwesomeIcon
+            icon={faSquareCaretDown}
+            size={buttonSize}
+            color={buttonColor}
+          />
+        </TouchableOpacity>
       </View>
       <View>
         <TouchableOpacity
           style={[styles.controlBtn, styles.actionBtn]}
           onPress={kick}
         >
-          <Text style={styles.btnText}>Kick</Text>
+          <FontAwesomeIcon
+            icon={faBolt}
+            size={buttonSize}
+            color={buttonColor}
+          />
         </TouchableOpacity>
 
         <TouchableOpacity
           style={[styles.controlBtn, styles.actionBtn]}
           onPress={create}
         >
-          <Text style={styles.btnText}>Create</Text>
+          <FontAwesomeIcon
+            icon={faCube}
+            size={buttonSize}
+            color={buttonColor}
+          />
         </TouchableOpacity>
       </View>
     </View>
@@ -359,6 +372,8 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "40%",
 
+    marginHorizontal: 24,
+
     //backgroundColor: "gray",
 
     paddingHorizontal: 20,
@@ -369,28 +384,36 @@ const styles = StyleSheet.create({
 
     opacity: 0.5,
   },
-
   leftContainer: {
     justifyContent: "center",
     alignItems: "center",
   },
+  topBtnContainer: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
 
+    width: "100%",
+  },
+  leftRightBtnContainer: {
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
+
+    width: "100%",
+  },
   controlBtn: {
-    justifyContent: "center",
-    margin: 10,
-    backgroundColor: "#1386A1",
-    padding: 16,
+    // justifyContent: "center",
+    // alignItems: "center",s
+    //backgroundColor: "#1386A1",
+    //padding: 16,
   },
 
-  actionBtn: {
-    width: 80,
-    height: 100,
-
-    borderRadius: 6,
-  },
+  actionBtn: { margin: 12 },
 
   btnText: {
-    color: "#fff",
+    color: "#1386A1",
+    fontFamily: "workSans",
     textAlign: "center",
   },
 });
