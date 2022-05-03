@@ -213,6 +213,20 @@ const Game = () => {
 
       <Pause visibility={isPaused} setVisibility={setIsPaused} />
 
+      <Text
+        style={{
+          margin: 12,
+
+          fontSize: 24,
+          position: "absolute",
+          top: 0,
+
+          zIndex: 10,
+        }}
+      >
+        Level: {levelCounter}
+      </Text>
+
       <CoinCounter coinCounter={coinCounter} />
 
       <GameContainer
@@ -236,7 +250,7 @@ const Game = () => {
           top: 10,
           left: 10,
 
-          opacity: 0,
+          opacity: 1,
         }}
       >
         <Text>Scale: {width >= 768 ? width / (width / 2) : 1}</Text>

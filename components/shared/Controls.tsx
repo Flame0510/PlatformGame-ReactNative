@@ -96,13 +96,15 @@ const Controls = ({
   const buttonSize = isMobile ? 64 : 96;
   const buttonColor = "#1386A1";
 
-  let moveInterval: any;
+  let moveInterval: NodeJS.Timer;
 
   const { collisionX, collisionY } = useCollision({ level, characterPosition });
 
-  const { jump } = useJump({
+  const { jump, blockJump } = useJump({
     characterPosition,
     setCharacterPosition,
+
+    collisionX,
 
     setDirection,
 
@@ -148,7 +150,12 @@ const Controls = ({
   const move = (direction: string) => {
     clearInterval(pressedInterval);
 
-    if (!isMoving && !isJumping && !isFalling) {
+    if (!isMoving && !isJumping) {
+      isJumping && setIsJumping(false);
+      isFalling && setIsFalling(false);
+
+      pressed = true;
+
       switch (direction) {
         case "left":
           setIsClimbing(false);
@@ -160,12 +167,6 @@ const Controls = ({
           if (!collisionX("left")) {
             let target = characterPosition.x - moveVelocity;
 
-            /* characterPosition.x -= 20;
-            setCharacterPosition({ ...characterPosition });
-            setIsMoving(true);
-            setIsMoving(false);
-            !collisionY() ? setIsFalling(true) : pressed && move("left"); */
-
             moveInterval = setInterval(() => {
               if (characterPosition.x - 10 >= target) {
                 characterPosition.x -= 10;
@@ -174,9 +175,14 @@ const Controls = ({
               } else {
                 clearInterval(moveInterval);
                 setIsMoving(false);
-                !collisionY() ? setIsFalling(true) : pressed && move("left");
+                //!collisionY() ? setIsFalling(true) : pressed && move("left");
+                pressed && move("left");
+                !collisionY() &&
+                  (pressed ? (characterPosition.y -= 20) : setIsFalling(true));
               }
             }, 50);
+          } else {
+            !collisionY() && setIsFalling(true);
           }
 
           break;
@@ -188,14 +194,8 @@ const Controls = ({
 
           setDirection("right");
 
-          if (!collisionX("right")) {
+          if (!collisionX("right") && !isJumping) {
             let target = characterPosition.x + moveVelocity;
-
-            /* characterPosition.x += 20;
-            setCharacterPosition({ ...characterPosition });
-            setIsMoving(true);
-            setIsMoving(false);
-            !collisionY() ? setIsFalling(true) : pressed && move("right"); */
 
             moveInterval = setInterval(() => {
               if (characterPosition.x + 10 <= target) {
@@ -205,9 +205,15 @@ const Controls = ({
               } else {
                 clearInterval(moveInterval);
                 setIsMoving(false);
-                !collisionY() ? setIsFalling(true) : pressed && move("right");
+
+                //!collisionY() && setIsFalling(true);
+                pressed && move("right");
+                !collisionY() &&
+                  (pressed ? (characterPosition.y -= 20) : setIsFalling(true));
               }
             }, 50);
+          } else {
+            !collisionY() && setIsFalling(true);
           }
 
           break;
@@ -244,7 +250,7 @@ const Controls = ({
               ? setIsClimbing(true)
               : setIsFalling(true);
 
-            characterPosition.y <= 0 && setIsClimbing(false);
+            (characterPosition.y <= 0 || collisionY()) && setIsClimbing(false);
 
             // : setIsFalling(true);
           }
@@ -254,7 +260,7 @@ const Controls = ({
   };
 
   useEffect(() => {
-    console.log(isMoving);
+    //console.log(isMoving);
 
     !isMoving && clearInterval(moveInterval);
   }, [isMoving]);
@@ -266,6 +272,7 @@ const Controls = ({
           <TouchableOpacity
             style={[styles.controlBtn, { transform: [{ scaleX: -1 }] }]}
             onPressIn={() => jump("left")}
+            onLongPress={() => console.log("PREMUTO LUNGO")}
             onPressOut={() => setIsMoving(false)}
           >
             <FontAwesomeIcon

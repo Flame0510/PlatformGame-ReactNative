@@ -2,10 +2,13 @@ import { useState } from "react";
 import { gameRowsColumns } from "../environment/gameContainer";
 import { CharacterPosition } from "../models/CharacterPosition";
 import { Direction } from "../models/Direction";
+import { useCollision } from "./useCollision";
 
 export const useJump = ({
   characterPosition,
   setCharacterPosition,
+
+  collisionX,
 
   setDirection,
 
@@ -20,6 +23,8 @@ export const useJump = ({
   characterPosition: CharacterPosition;
   setCharacterPosition: (characterPosition: CharacterPosition) => void;
 
+  collisionX: (direction: Direction | undefined) => boolean;
+
   setDirection: (direction: Direction) => void;
 
   setIsClimbing: (isClimbing: boolean) => void;
@@ -32,10 +37,12 @@ export const useJump = ({
 }) => {
   const { rows, columns } = gameRowsColumns;
 
+  let jumpInterval: NodeJS.Timer;
+
   //JUMP
   const jump = (direction?: Direction | undefined) => {
-    console.log("JUMP: ", isJumping);
-    console.log("FALL: ", isFalling);
+    // console.log("JUMP: ", isJumping);
+    // console.log("FALL: ", isFalling);
 
     const y = Math.ceil(characterPosition.y / 20);
 
@@ -48,13 +55,18 @@ export const useJump = ({
 
     //console.log(y + "<" + (rows - jumpHeight / 20));
 
-    if (y < rows - jumpHeight / 20 && !isJumping && !isFalling) {
+    if (
+      y < rows - jumpHeight / 20 &&
+      !collisionX(direction) &&
+      !isJumping &&
+      !isFalling
+    ) {
       setIsClimbing(false);
       setIsJumping(true);
 
       const targetY = characterPosition.y + jumpHeight;
 
-      const jumpInterval = setInterval(() => {
+      jumpInterval = setInterval(() => {
         if (characterPosition.y < targetY) {
           characterPosition.y += 10;
 
@@ -75,5 +87,9 @@ export const useJump = ({
     }
   };
 
-  return { jump };
+  const blockJump = () => {
+    clearInterval(jumpInterval);
+  };
+
+  return { jump, blockJump };
 };

@@ -38,6 +38,9 @@ export const useLevel = ({
       (finishPosition.y = finishPosition.y -= 3);
 
     //console.warn("FINISH POS: ", finishPosition);
+    let lastRowHavePlatform = 0;
+    let lastStartPoint = 0;
+    let lastPlatformLenght = 0;
 
     for (let r = 0; r < rows; r++) {
       let rowHavePlatform;
@@ -45,26 +48,78 @@ export const useLevel = ({
       let startPoint;
       let platformLenght;
 
+      let secondStartPoint;
+      let secondPlatformLenght;
+
       if (
         r > 1 &&
         !rowsWithPlatforms[r - 1] &&
         !rowsWithPlatforms[r - 2] &&
-        r < rows - 3
+        r !== characterPosition.y &&
+        r !== finishPosition.y &&
+        r < rows - 4
       ) {
         rowHavePlatform = Math.random() * 1 > 0.5 ? 1 : 0;
-        rowsWithPlatforms[r] = 1;
+        rowsWithPlatforms[r] = rowHavePlatform;
 
-        /* rowsWithPlatforms.map((element, i) =>
+        //console.log("rowsWithPlatforms: ", rowsWithPlatforms);
+        //console.log("LAST INDEX OF :", lastRowHavePlatform);
+
+        if (rowHavePlatform) {
           console.log(
-            "GET START POINT",
-            i <= r &&
-              element == 1 &&
-              level[i].findIndex((levelElement, levelI) => levelElement === 1)
-          )
-        ); */
+            "LAST START POINT: " +
+              lastRowHavePlatform +
+              " - " +
+              lastStartPoint +
+              " - LENGHT: " +
+              lastPlatformLenght
+          );
 
-        startPoint = Math.ceil(Math.random() * (10 - 2) + 2);
-        platformLenght = Math.ceil(Math.random() * (5 - 2) + 2);
+          console.log("R: " + r);
+
+          //PLATFORM
+          platformLenght = Math.ceil(Math.random() * (8 - 2) + 2);
+
+          const minStartPoint = lastStartPoint;
+          const maxStartPoint = lastStartPoint + lastPlatformLenght;
+
+          startPoint = Math.ceil(
+            Math.random() * (maxStartPoint - minStartPoint) + minStartPoint
+          );
+          startPoint <= 0 && (startPoint = 1);
+
+          if (startPoint + platformLenght <= columns / 2) {
+            secondStartPoint = Math.ceil(
+              Math.random() * (maxStartPoint - minStartPoint) + minStartPoint
+            );
+
+            secondStartPoint <= 0 && (secondStartPoint = 1);
+          }
+
+          //LADDER
+          if (r - lastRowHavePlatform > 3) {
+            for (
+              let l =
+                lastRowHavePlatform !== 0
+                  ? lastRowHavePlatform + 1
+                  : lastRowHavePlatform;
+              l < r;
+              l++
+            ) {
+              level[l][startPoint] = "l";
+
+              console.log("Y: " + l + " - " + "X: " + startPoint);
+            }
+          }
+
+          console.log("START POINT: " + r + " - " + startPoint);
+
+          lastRowHavePlatform = r;
+          lastStartPoint = startPoint;
+          lastPlatformLenght = platformLenght;
+        }
+      } else if (r === finishPosition.y) {
+        rowsWithPlatforms[r] = 1;
       } else {
         rowsWithPlatforms[r] = 0;
       }
@@ -72,7 +127,10 @@ export const useLevel = ({
       for (let c = 0; c < columns; c++) {
         //console.warn("C:", c);
 
-        level[r][c] = 0;
+        level[r][c] =
+          r > 1 && r - 2 !== finishPosition.y && level[r - 2][c] === 1
+            ? "c"
+            : 0;
 
         /* if (r !== finishPosition.y && c !== finishPosition.x) {
           

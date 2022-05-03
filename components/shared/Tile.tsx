@@ -85,10 +85,10 @@ const Tile = ({
             style={{ width: 20, height: 20 }}
           />
         ) : (
-          <Text style={{ color, textAlign: "center", fontSize: 10 }}>
-            {/* {rowKey},{columnKey} */}
-            {text}
-          </Text>
+          <Text style={{ color, textAlign: "center", fontSize: 7 }}>
+            {rowKey},{columnKey}
+            {/* {text} */}
+          </Text> 
         )}
       </View>
     );
