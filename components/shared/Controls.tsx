@@ -57,6 +57,8 @@ const Controls = ({
 
   isFalling,
   setIsFalling,
+
+  isFinish,
 }: {
   level: Level;
 
@@ -85,6 +87,8 @@ const Controls = ({
 
   isFalling: boolean;
   setIsFalling: (isFalling: boolean) => void;
+
+  isFinish: boolean;
 }) => {
   const { rows, columns } = gameRowsColumns;
 
@@ -115,6 +119,8 @@ const Controls = ({
 
     isFalling,
     setIsFalling,
+
+    isFinish
   });
 
   //KICK
@@ -150,7 +156,7 @@ const Controls = ({
   const move = (direction: string) => {
     clearInterval(pressedInterval);
 
-    if (!isMoving && !isJumping) {
+    if (!isMoving && !isJumping && !isFinish) {
       isJumping && setIsJumping(false);
       isFalling && setIsFalling(false);
 
@@ -260,10 +266,8 @@ const Controls = ({
   };
 
   useEffect(() => {
-    //console.log(isMoving);
-
-    !isMoving && clearInterval(moveInterval);
-  }, [isMoving]);
+    clearInterval(moveInterval);
+  }, [isFinish]);
 
   return (
     <View style={styles.container}>

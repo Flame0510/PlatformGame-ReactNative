@@ -13,6 +13,7 @@ export const useGravity = ({
   isJumping,
   isFalling,
   setIsFalling,
+  isFinish,
 }: {
   tick: number;
   gameWindowSize: GameWindowSize;
@@ -22,6 +23,7 @@ export const useGravity = ({
   isJumping: boolean;
   isFalling: boolean;
   setIsFalling: (isFalling: boolean) => void;
+  isFinish: boolean;
 }) => {
   let gravityInterval: any;
 
@@ -37,7 +39,7 @@ export const useGravity = ({
 
       //isFalling && collision();
 
-      if (isFalling) {
+      if (isFalling && !isFinish) {
         if (!collisionY()) {
           characterPosition.y -= 20;
 
@@ -67,4 +69,8 @@ export const useGravity = ({
     gravity(1);
     return () => clearInterval(gravityInterval);
   }, [isJumping, isFalling]);
+
+  useEffect(() => {
+    isFinish && clearInterval(gravityInterval);
+  }, [isFinish]);
 };

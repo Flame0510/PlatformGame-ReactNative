@@ -7,6 +7,7 @@ import {
   Dimensions,
   Animated,
   TouchableOpacity,
+  Image,
 } from "react-native";
 import { gameRowsColumns } from "../environment/gameContainer";
 import CoinCounter from "./shared/CoinCounter";
@@ -21,6 +22,11 @@ import GameContainer from "./shared/GameCointainer";
 import Pause from "./Pause";
 import { faPause } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-native-fontawesome";
+
+const width = Dimensions.get("screen").width;
+const height = Dimensions.get("screen").height;
+
+const isMobile = width < 768;
 
 const Game = () => {
   const [isPaused, setIsPaused] = useState(false);
@@ -49,9 +55,6 @@ const Game = () => {
 
   //const [gameWindowSize, setGameWindowSize] = useState<GameWindowSize>();
 
-  const width = Dimensions.get("screen").width;
-  const height = Dimensions.get("screen").height;
-
   let gameWindowSize = {
     width: 400,
     height: 400,
@@ -67,7 +70,22 @@ const Game = () => {
     y: 0,
   });
 
+  //FADE
   const fadeValue = useRef(new Animated.Value(0)).current;
+
+  const gameFadeIn = () =>
+    Animated.timing(fadeValue, {
+      toValue: 1,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
+
+  const gameFadeOut = () =>
+    Animated.timing(fadeValue, {
+      toValue: 0,
+      duration: 1000,
+      useNativeDriver: true,
+    }).start();
 
   //LEVEL
   const b = "b";
@@ -105,7 +123,9 @@ const Game = () => {
   const createLevel = useLevel({
     level,
     setLevel,
+    coinCounter,
     characterPosition,
+    setCharacterPosition,
   });
 
   //USE CLIMB
@@ -147,14 +167,20 @@ const Game = () => {
   });
 
   //USE FINISH
-  useFinish({
+  const { isFinish } = useFinish({
+    gameFadeIn,
+    gameFadeOut,
     level,
     setLevelCounter,
     createLevel,
     characterPosition,
+    setCharacterPosition,
     isMoving,
+    setIsMoving,
     isJumping,
+    setIsJumping,
     isFalling,
+    setIsFalling,
   });
 
   //USE GRAVITY
@@ -168,16 +194,11 @@ const Game = () => {
       isJumping,
       isFalling,
       setIsFalling,
+      isFinish,
     });
 
   useEffect(() => {
-    Animated.timing(fadeValue, {
-      toValue: 1,
-      duration: 1000,
-      useNativeDriver: true,
-    }).start();
-
-    console.log(Dimensions.get("window").height);
+    gameFadeIn();
   }, []);
 
   return level ? (
@@ -250,7 +271,7 @@ const Game = () => {
           top: 10,
           left: 10,
 
-          opacity: 1,
+          opacity: 0,
         }}
       >
         <Text>Scale: {width >= 768 ? width / (width / 2) : 1}</Text>
@@ -290,6 +311,7 @@ const Game = () => {
         setIsJumping={setIsJumping}
         isFalling={isFalling}
         setIsFalling={setIsFalling}
+        isFinish={isFinish}
       />
     </Animated.View>
   ) : (

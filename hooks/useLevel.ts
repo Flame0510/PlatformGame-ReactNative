@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { gameRowsColumns } from "../environment/gameContainer";
 import { CharacterPosition } from "../models/CharacterPosition";
 import { Level } from "./../models/Level";
@@ -6,15 +6,41 @@ import { Level } from "./../models/Level";
 export const useLevel = ({
   level,
   setLevel,
+  coinCounter,
   characterPosition,
+  setCharacterPosition,
 }: {
   level: Level;
   setLevel: (level: Level) => void;
+  coinCounter: number;
   characterPosition: CharacterPosition;
+  setCharacterPosition: (characterPosition: CharacterPosition) => void;
 }) => {
   const { rows, columns } = gameRowsColumns;
 
+  let [levelCoinCounter, setLevelCoinCounter] = useState<number>(0);
+  const [lastTileCoordinates, setLastTileCoordinates] = useState<{
+    x: number;
+    y: number;
+  }>({ x: 0, y: 0 });
+
+  const minX = characterPosition.x / 20 < columns / 2 ? columns / 2 - 1 : 0;
+  const maxX =
+    characterPosition.x / 20 < columns / 2 ? columns - 1 : columns / 2 - 1;
+
+  //console.log("MIN X: " + minX + "---MAX X: " + maxX);
+
+  //FINISH POSITION
+  const finishPosition = {
+    x: Math.ceil(Math.random() * (maxX - minX) + minX),
+    y: Math.ceil(Math.random() * (rows - 2) + 2),
+  };
+
+  finishPosition.y + 1 > rows - 3 && (finishPosition.y = finishPosition.y -= 3);
+
   const createLevel = () => {
+    levelCoinCounter = coinCounter;
+
     const rowsWithPlatforms: number[] = [];
 
     const x = Math.ceil(characterPosition.x / 20);
@@ -22,23 +48,9 @@ export const useLevel = ({
 
     console.log("\nNEW MAP\n\n\n");
 
-    const minX = characterPosition.x / 20 < columns / 2 ? columns / 2 - 1 : 0;
-    const maxX =
-      characterPosition.x / 20 < columns / 2 ? columns - 1 : columns / 2 - 1;
-
-    //console.log("MIN X: " + minX + "---MAX X: " + maxX);
-
-    //FINISH POSITION
-    const finishPosition = {
-      x: Math.ceil(Math.random() * (maxX - minX) + minX),
-      y: Math.ceil(Math.random() * (rows - 2) + 2),
-    };
-
-    finishPosition.y + 1 > rows - 3 &&
-      (finishPosition.y = finishPosition.y -= 3);
-
     //console.warn("FINISH POS: ", finishPosition);
     let lastRowHavePlatform = 0;
+    let lastColumnHavePlatform = 0;
     let lastStartPoint = 0;
     let lastPlatformLenght = 0;
 
@@ -97,7 +109,7 @@ export const useLevel = ({
           }
 
           //LADDER
-          if (r - lastRowHavePlatform > 3) {
+          if (r - lastRowHavePlatform >= 4) {
             for (
               let l =
                 lastRowHavePlatform !== 0
@@ -125,12 +137,19 @@ export const useLevel = ({
       }
 
       for (let c = 0; c < columns; c++) {
-        //console.warn("C:", c);
-
-        level[r][c] =
-          r > 1 && r - 2 !== finishPosition.y && level[r - 2][c] === 1
-            ? "c"
-            : 0;
+        if (
+          r > 1 &&
+          c > 1 &&
+          c < columns - 1 &&
+          r - 2 !== finishPosition.y &&
+          level[r - 2][c - 1] === 1 &&
+          level[r - 2][c + 1] === 1 &&
+          level[r - 2][c] === 1
+        ) {
+          (level[r][c] = "c"), setLevelCoinCounter(levelCoinCounter++);
+        } else {
+          level[r][c] = 0;
+        }
 
         /* if (r !== finishPosition.y && c !== finishPosition.x) {
           
@@ -147,7 +166,7 @@ export const useLevel = ({
 
           c >= startPoint &&
             c <= startPoint + platformLenght &&
-            (level[r][c] = 1);
+            ((level[r][c] = 1), (lastColumnHavePlatform = c));
         }
 
         /* const randNum = Math.ceil(Math.random() * 5);
@@ -178,23 +197,52 @@ export const useLevel = ({
 
     //console.log(rowsWithPlatforms.reverse());
 
-    level[finishPosition.y + 1][finishPosition.x] = "f";
+    /* level[finishPosition.y + 1][finishPosition.x] = "f";
     level[finishPosition.y][finishPosition.x] = "f";
 
     level[finishPosition.y - 1][finishPosition.x + 1] = 1;
     level[finishPosition.y - 1][finishPosition.x] = 1;
-    level[finishPosition.y - 1][finishPosition.x - 1] = 1;
+    level[finishPosition.y - 1][finishPosition.x - 1] = 1; */
 
-    y > 0 && (level[y - 1][x] = 1);
+    //y > 0 && (level[y - 1][x] = 1);
 
     setLevel([...level]);
-
     //console.log(level);
+
+    setLastTileCoordinates({
+      x: lastColumnHavePlatform,
+      y: lastRowHavePlatform,
+    });
   };
 
   useEffect(() => {
     createLevel();
   }, []);
+
+  useEffect(() => {}, [level]);
+
+  useEffect(() => {
+    console.warn(levelCoinCounter);
+  }, [levelCoinCounter]);
+
+  useEffect(() => {
+    if (coinCounter >= levelCoinCounter) {
+      console.warn(levelCoinCounter);
+
+      level[lastTileCoordinates.y + 3][lastTileCoordinates.x + 1] = "f";
+      level[lastTileCoordinates.y + 2][lastTileCoordinates.x + 1] = "f";
+      level[lastTileCoordinates.y + 1][lastTileCoordinates.x + 1] = "f";
+
+      level[lastTileCoordinates.y + 4][lastTileCoordinates.x + 1] = 1;
+      level[lastTileCoordinates.y + 4][lastTileCoordinates.x + 2] = 1;
+      level[lastTileCoordinates.y + 3][lastTileCoordinates.x + 2] = 1;
+      level[lastTileCoordinates.y + 2][lastTileCoordinates.x + 2] = 1;
+      level[lastTileCoordinates.y + 1][lastTileCoordinates.x + 2] = 1;
+      level[lastTileCoordinates.y][lastTileCoordinates.x + 2] = 1;
+      level[lastTileCoordinates.y][lastTileCoordinates.x + 1] = 1;
+      level[lastTileCoordinates.y][lastTileCoordinates.x] = 1;
+    }
+  }, [coinCounter]);
 
   return createLevel;
 };

@@ -80,7 +80,7 @@ const GameContainer = ({
         characterPosition.x / 20 > columns / 2 && { right: 0 }, */
       ]}
     >
-      <View
+      {/* <View
         style={{
           width: 10,
           height: "100%",
@@ -98,7 +98,7 @@ const GameContainer = ({
           position: "absolute",
           top: (rows * 20) / 2,
         }}
-      />
+      /> */}
 
       
 

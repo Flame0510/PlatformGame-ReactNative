@@ -19,6 +19,8 @@ export const useJump = ({
 
   isFalling,
   setIsFalling,
+
+  isFinish,
 }: {
   characterPosition: CharacterPosition;
   setCharacterPosition: (characterPosition: CharacterPosition) => void;
@@ -34,6 +36,8 @@ export const useJump = ({
 
   isFalling: boolean;
   setIsFalling: (isFalling: boolean) => void;
+
+  isFinish: boolean;
 }) => {
   const { rows, columns } = gameRowsColumns;
 
@@ -59,7 +63,8 @@ export const useJump = ({
       y < rows - jumpHeight / 20 &&
       !collisionX(direction) &&
       !isJumping &&
-      !isFalling
+      !isFalling &&
+      !isFinish
     ) {
       setIsClimbing(false);
       setIsJumping(true);
