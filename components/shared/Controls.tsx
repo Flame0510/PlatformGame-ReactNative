@@ -120,7 +120,7 @@ const Controls = ({
     isFalling,
     setIsFalling,
 
-    isFinish
+    isFinish,
   });
 
   //KICK
@@ -288,7 +288,7 @@ const Controls = ({
 
           <TouchableOpacity
             style={[styles.controlBtn]}
-            onPressIn={() => (canClimb ? move("up") : jump())}
+            onPressIn={() => (canClimb || isClimbing ? move("up") : jump())}
             onPressOut={() => setIsMoving(false)}
           >
             <FontAwesomeIcon

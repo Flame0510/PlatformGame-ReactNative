@@ -219,16 +219,8 @@ export const useLevel = ({
     createLevel();
   }, []);
 
-  useEffect(() => {}, [level]);
-
   useEffect(() => {
-    console.warn(levelCoinCounter);
-  }, [levelCoinCounter]);
-
-  useEffect(() => {
-    if (coinCounter >= levelCoinCounter) {
-      console.warn(levelCoinCounter);
-
+    if (coinCounter >= levelCoinCounter - 1) {
       level[lastTileCoordinates.y + 3][lastTileCoordinates.x + 1] = "f";
       level[lastTileCoordinates.y + 2][lastTileCoordinates.x + 1] = "f";
       level[lastTileCoordinates.y + 1][lastTileCoordinates.x + 1] = "f";
